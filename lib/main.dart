@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -33,13 +35,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
+        centerTitle: true,
+        backgroundColor: Colors.redAccent,
         title: Text("Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: AvatarGlow(
         animate: _isListening,
-        glowColor: Colors.deepOrange,
+        glowColor: Colors.redAccent,
         endRadius: 75,
         duration: Duration(milliseconds: 2000),
         repeatPauseDuration: Duration(milliseconds: 100),
@@ -48,37 +51,21 @@ class _SpeechScreenState extends State<SpeechScreen> {
           onPressed: () {
             _listen();
           },
-          backgroundColor: Colors.deepOrange,
+          backgroundColor: Colors.redAccent,
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),
         ),
       ),
       body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _currentState,
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+        reverse: true,
+        child: Container(
+          padding: EdgeInsets.fromLTRB(30, 30, 30, 150),
+          child: Text(
+            _text,
+            style: TextStyle(
+              fontSize: 28,
+              fontStyle: FontStyle.italic,
             ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Text(
-                  _text,
-                  style: TextStyle(fontSize: 28, fontStyle: FontStyle.italic),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
