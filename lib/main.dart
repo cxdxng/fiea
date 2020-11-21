@@ -1,8 +1,8 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
-import 'package:highlight_text/highlight_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'BackgroundTasks.dart';
 
 void main() => runApp(MaterialApp(
   home: SpeechScreen(),
@@ -102,10 +102,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _confidence = result.confidence;
       }
       if (msg != "" && lastStatus == "notListening") {
+
+        Background().handleResults(msg);
         print(msg);
-        if (msg == "info Kennung 5") {
-          print("now it even works in Flutter and Dart!!!");
-        }
       }
     });
   }
