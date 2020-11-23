@@ -24,4 +24,19 @@ class Background{
 
   }
 
+  void speakOut(String msg){
+
+  }
+
+}
+
+class HumanData{
+  final int id;
+  final String name;
+  final int birthyear;
+  final String facedata;
+
+
+  HumanData({this.id, this.name, this.birthyear, this.facedata});
+
 }

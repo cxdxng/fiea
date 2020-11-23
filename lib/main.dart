@@ -19,11 +19,8 @@ class SpeechScreen extends StatefulWidget {
 class _SpeechScreenState extends State<SpeechScreen> {
   stt.SpeechToText _speech;
   var _isListening = false;
-  var _text = "Press the button and start speaking";
+  var _text = "F.I.E.A Bereit";
   var _confidence = 1.0;
-  var _state_listening = "F.I.E.A hört zu...";
-  var _state_ready = "F.I.E.A Bereit";
-  var _currentState = "F.I.E.A Bereit";
   var lastStatus = "";
 
   @override
@@ -37,7 +34,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Color(0xff44D6E9),
         title: Text("Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -116,7 +113,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   void _listen() async {
     if (!_isListening) {
-      _currentState = _state_listening;
       var available = await _speech.initialize(
         onStatus: statusListener,
         onError: (val) => print("onError: $val"),
@@ -131,7 +127,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
     } else {
       setState(() {
         _isListening = false;
-        _currentState = _state_ready;
       });
       _speech.stop();
     }
