@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
@@ -42,7 +43,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: AvatarGlow(
         animate: _isListening,
-        glowColor: Colors.redAccent,
+        glowColor: Color(0xff44D6E9),
         endRadius: 75,
         duration: Duration(milliseconds: 2000),
         repeatPauseDuration: Duration(milliseconds: 100),
@@ -51,21 +52,38 @@ class _SpeechScreenState extends State<SpeechScreen> {
           onPressed: () {
             _listen();
           },
-          backgroundColor: Colors.redAccent,
+          backgroundColor: Color(0xff080e2c),
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),
         ),
       ),
-      body: SingleChildScrollView(
-        reverse: true,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(30, 30, 30, 150),
-          child: Text(
-            _text,
-            style: TextStyle(
-              fontSize: 28,
-              fontStyle: FontStyle.italic,
+
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/ai.jpg"),
+            fit: BoxFit.cover
+          )
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SingleChildScrollView(
+
+              reverse: true,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(30, 30, 30, 150),
+                child: Text(
+                  _text,
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
