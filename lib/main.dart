@@ -10,7 +10,7 @@ import 'BackgroundTasks.dart';
 
 void main() => runApp(MaterialApp(
   //home: SpeechScreen(),
-  home: TTS(),
+  home: SpeechScreen(),
 ));
 
 class SpeechScreen extends StatefulWidget {
@@ -50,6 +50,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         child: FloatingActionButton(
           onPressed: () {
             _listen();
+            //Background().query();
           },
           backgroundColor: Color(0xff080e2c),
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),

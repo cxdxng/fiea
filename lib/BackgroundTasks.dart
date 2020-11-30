@@ -1,26 +1,32 @@
 import 'DatabaseHelper.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 
 class Background{
 
   final dbHelper = DatabaseHelper.instance;
+  FlutterTts tts = FlutterTts();
+
 
   void handleResults(String msg)async{
 
     switch (msg){
-      case "datenbank anzeigen":{_query();}
-        break;
+      case "Datenbank anzeigen":{
+        query();
+      }
+      break;
       case "gesicht hinzufügen":{}
-        break;
+      break;
       case "info":{}
-        break;
-      case "eintrag löschen":{_delete();}
-        break;
-      case "neuer eintrag":{_insert("Test", 2000);}
-        break;
+      break;
+      case "eintrag löschen":{delete();}
+      break;
+      case "neuer Eintrag":{insert("Test", 2000);}
+      break;
     }
   }
 
-  void _insert(String name, int year) async {
+  void insert(String name, int year) async {
     // row to insert
     Map<String, dynamic> row = {
       DatabaseHelper.columnName : name,
@@ -28,23 +34,43 @@ class Background{
     };
     final id = await dbHelper.insert(row);
     print('inserted row id: $id');
+    speakOut('inserted row id: $id');
   }
 
-  void _query() async {
+  void query() async {
     final allRows = await dbHelper.queryAllRows();
-    print('query all rows:');
-    allRows.forEach((row) => print(row));
+    allRows.forEach((row) {
+      var rowAsString = row.toString();
+      var formatted = formatString(rowAsString);
+      print(formatted.toString());
+      speakOut("${formatted[0]}\n${formatted[1]}\n${formatted[2]}");
+
+    });
   }
 
-  void _delete() async {
+  void delete() async {
     // Assuming that the number of rows is the id for the last row.
     final id = await dbHelper.queryRowCount();
     final rowsDeleted = await dbHelper.delete(id);
     print('deleted $rowsDeleted row(s): row $id');
   }
 
-  void speakOut(String msg){
+  void speakOut(String msg)async {
+    await tts.setLanguage("de-DE");
+    await tts.speak(msg);
+  }
 
+  List<String> formatString(String toEdit){
+    var removeFrontBracket = toEdit.replaceAll("{", "");
+    var removeBackBracket = removeFrontBracket.replaceAll("}", "");
+    var splitAtComma = removeBackBracket.split(",");
+
+    var tempID = "ID: ${splitAtComma[0].replaceAll("_id: ", "").trim()}";
+    var tempName = "Name: ${splitAtComma[1].replaceAll("name: ", "").trim()}";
+    var tempBirth = "Geboren: ${splitAtComma[2].replaceAll("birth: ", "").trim()}";
+
+
+    return [tempID, tempName, tempBirth];
   }
 
 }

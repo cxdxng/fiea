@@ -1,6 +1,6 @@
+import 'package:fiea/BackgroundTasks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'DatabaseHelper.dart';
 
 class TTS extends StatefulWidget {
@@ -10,7 +10,6 @@ class TTS extends StatefulWidget {
 
 class _TTSState extends State<TTS> {
 
-  FlutterTts tts = FlutterTts();
   final dbHelper = DatabaseHelper.instance;
 
   @override
@@ -33,6 +32,10 @@ class _TTSState extends State<TTS> {
           FloatingActionButton(
             onPressed:(){_delete();},
             child: Text("Delete DATA"),
+          ),
+          FloatingActionButton(
+            onPressed:(){Background().speakOut("Juden Tach ming freund");},
+            child: Text("SPEAK"),
           ),
         ],
       ),
