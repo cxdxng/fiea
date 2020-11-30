@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:fiea/TestUI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -14,6 +13,7 @@ void main() => runApp(MaterialApp(
 ));
 
 class SpeechScreen extends StatefulWidget {
+
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
 }
@@ -49,7 +49,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         repeat: true,
         child: FloatingActionButton(
           onPressed: () {
-            _listen();
+            listen();
             //Background().query();
           },
           backgroundColor: Color(0xff080e2c),
@@ -94,7 +94,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       lastStatus = "$status";
       print(status);
       if (status == "notListening") {
-        _listen();
+        listen();
       }
     });
   }
@@ -107,13 +107,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _confidence = result.confidence;
       }
       if (msg != "" && lastStatus == "notListening") {
+        print("Its case 100 Biatches and msg is $msg");
         Background().handleResults(msg);
-        print(msg);
       }
     });
   }
 
-  void _listen() async {
+  void listen() async {
     if (!_isListening) {
       var available = await _speech.initialize(
         onStatus: statusListener,

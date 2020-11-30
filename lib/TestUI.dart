@@ -30,7 +30,7 @@ class _TTSState extends State<TTS> {
             child: Text("GET DATA"),
           ),
           FloatingActionButton(
-            onPressed:(){_delete();},
+            onPressed:(){},
             child: Text("Delete DATA"),
           ),
           FloatingActionButton(
@@ -57,12 +57,6 @@ class _TTSState extends State<TTS> {
     allRows.forEach((row) => print(row));
   }
 
-  void _delete() async {
-    // Assuming that the number of rows is the id for the last row.
-    final id = await dbHelper.queryRowCount();
-    final rowsDeleted = await dbHelper.delete(id);
-    print('deleted $rowsDeleted row(s): row $id');
-  }
 }
 
 
