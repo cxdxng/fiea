@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:fiea/TestUI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -8,7 +9,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
 
 void main() => runApp(MaterialApp(
-  home: SpeechScreen(),
+  //home: SpeechScreen(),
+  home: TTS(),
 ));
 
 class SpeechScreen extends StatefulWidget {
@@ -104,7 +106,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _confidence = result.confidence;
       }
       if (msg != "" && lastStatus == "notListening") {
-
         Background().handleResults(msg);
         print(msg);
       }
