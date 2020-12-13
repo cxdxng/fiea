@@ -17,10 +17,12 @@ class DatabaseHelper {
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
+
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database _database;
+
   Future<Database> get database async {
     if (_database != null) return _database;
     // lazily instantiate the db the first time it is accessed
@@ -45,7 +47,8 @@ class DatabaseHelper {
             $columnName TEXT NOT NULL,
             $columnBirth INTEGER NOT NULL
           )
-          ''');  }
+          ''');
+  }
 
   // Helper methods
 
@@ -55,6 +58,16 @@ class DatabaseHelper {
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
     return await db.insert(table, row);
+  }
+
+  void createTable(Database db, int version) async {
+    await db.execute('''
+          CREATE TABLE $table (
+            $columnId INTEGER PRIMARY KEY,
+            $columnName TEXT NOT NULL,
+            $columnBirth INTEGER NOT NULL
+          )
+          ''');
   }
 
 

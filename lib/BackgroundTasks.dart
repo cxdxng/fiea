@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fiea/main.dart';
 
 import 'DatabaseHelper.dart';
@@ -8,6 +12,13 @@ class Background{
 
   final dbHelper = DatabaseHelper.instance;
   FlutterTts tts = FlutterTts();
+
+  Future<String> convertToBase64(File imageFile) async {
+    if (imageFile != null) {
+      Uint8List bytes = await imageFile.readAsBytes();
+      return base64.encode(bytes);
+    }
+  }
 
   void handleResults(String msg)async{
 
@@ -67,29 +78,18 @@ class Background{
     await tts.speak(msg);
   }
 
-  List<String> formatString(String toEdit){
+  List<String> formatString(String toEdit) {
     var removeFrontBracket = toEdit.replaceAll("{", "");
     var removeBackBracket = removeFrontBracket.replaceAll("}", "");
     var splitAtComma = removeBackBracket.split(",");
 
     var tempID = "Kennung: ${splitAtComma[0].replaceAll("_id: ", "").trim()}";
     var tempName = "Name: ${splitAtComma[1].replaceAll("name: ", "").trim()}";
-    var tempBirth = "Geboren: ${splitAtComma[2].replaceAll("birth: ", "").trim()}";
+    var tempBirth = "Geboren: ${splitAtComma[2]
+        .replaceAll("birth: ", "")
+        .trim()}";
 
 
     return [tempID, tempName, tempBirth];
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:fiea/TestUI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -9,7 +10,7 @@ import 'BackgroundTasks.dart';
 
 void main() => runApp(MaterialApp(
   //home: SpeechScreen(),
-  home: SpeechScreen(),
+  home: TTS(),
 ));
 
 class SpeechScreen extends StatefulWidget {
