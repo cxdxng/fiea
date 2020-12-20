@@ -76,6 +76,12 @@ class DatabaseHelper {
     return await db.query(table);
   }
 
+  Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
+    Database db = await instance.database;
+    var data = db.rawQuery("SELECT * FROM $table WHERE $columnId='$id'");
+    return data;
+  }
+
 
   // We are assuming here that the id column in the map is set. The other
   // column values will be used to update the row.
@@ -85,6 +91,12 @@ class DatabaseHelper {
     return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
   }
 
+  Future<String> addFace(String facedata, int id)async{
+    Database db = await instance.database;
+    await db.execute("UPDATE $table SET $columnFacedata ='$facedata' WHERE $columnId='$id'");
+    return "Success";
+  }
+
   // Deletes the row specified by the id. The number of affected rows is
   // returned. This should be 1 as long as the row exists.
   Future<int> delete(int id) async {
@@ -92,3 +104,13 @@ class DatabaseHelper {
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 }
+
+
+
+
+
+
+
+
+
+

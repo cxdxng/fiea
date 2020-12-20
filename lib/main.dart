@@ -25,6 +25,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   var _text = "F.I.E.A Bereit";
   var _confidence = 1.0;
   var lastStatus = "";
+  var showImage = false;
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         child: FloatingActionButton(
           onPressed: () {
             listen();
-            //Background().query();
+            showImage = false;
           },
           backgroundColor: Color(0xff080e2c),
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),
@@ -84,6 +85,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 ),
               ),
             ),
+            if (showImage) Image(image: AssetImage("assets/affe.jpeg")),
           ],
         ),
       ),
@@ -108,8 +110,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _confidence = result.confidence;
       }
       if (msg != "" && lastStatus == "notListening") {
-        print("msg is $msg");
-        Background().handleResults(msg);
+        print("msg is: +++$msg+++");
+        var setVisible = Background().handleResults(msg);
+        print(setVisible);
+        showImage = setVisible;
       }
     });
   }
