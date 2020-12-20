@@ -9,8 +9,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
 
 void main() => runApp(MaterialApp(
-  //home: SpeechScreen(),
-  home: TTS(),
+  home: SpeechScreen(),
+  //home: TTS(),
 ));
 
 class SpeechScreen extends StatefulWidget {
@@ -108,7 +108,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _confidence = result.confidence;
       }
       if (msg != "" && lastStatus == "notListening") {
-        print("Its case 100 Biatches and msg is $msg");
+        print("msg is $msg");
         Background().handleResults(msg);
       }
     });

@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
 
+  // Create necessary Variables
+
   static final _databaseName = "Humans.db";
   static final _databaseVersion = 1;
 
@@ -14,6 +16,7 @@ class DatabaseHelper {
   static final columnId = '_id';
   static final columnName = 'name';
   static final columnBirth = 'birth';
+  static final columnFacedata = "facedata";
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -45,12 +48,16 @@ class DatabaseHelper {
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
-            $columnBirth INTEGER NOT NULL
+            $columnBirth INTEGER NOT NULL,
+            $columnFacedata TEXT
           )
           ''');
   }
 
   // Helper methods
+
+  // All of the methods (insert, query, update, delete) can also be done using
+  // raw SQL commands. This method uses a raw query to give the row count.
 
   // Inserts a row in the database where each key in the Map is a column name
   // and the value is the column value. The return value is the id of the
@@ -58,16 +65,6 @@ class DatabaseHelper {
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
     return await db.insert(table, row);
-  }
-
-  void createTable(Database db, int version) async {
-    await db.execute('''
-          CREATE TABLE $table (
-            $columnId INTEGER PRIMARY KEY,
-            $columnName TEXT NOT NULL,
-            $columnBirth INTEGER NOT NULL
-          )
-          ''');
   }
 
 
@@ -78,9 +75,6 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.query(table);
   }
-
-  // All of the methods (insert, query, update, delete) can also be done using
-  // raw SQL commands. This method uses a raw query to give the row count.
 
 
   // We are assuming here that the id column in the map is set. The other

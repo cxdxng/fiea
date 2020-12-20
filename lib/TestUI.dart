@@ -17,8 +17,8 @@ class _TTSState extends State<TTS> {
   var base64data = "";
   var textOrWhat = "Hello world";
   var u8List;
-
-  var makeImage = false;
+  var visibility = 0;
+  var showImage = false;
 
 
   @override
@@ -37,8 +37,8 @@ class _TTSState extends State<TTS> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            RaisedButton(
-              child: Text("Select Image from Gallery"),
+            /* RaisedButton(
+              child: Text("change"),
                 onPressed: () async {
                   File imageFile =
                   await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -47,9 +47,16 @@ class _TTSState extends State<TTS> {
                     print(base64data);
                   }
                 },
+            ), */
+            RaisedButton(
+              child: Text("change Visibility"),
+              onPressed: (){
+                changeVisibility(visibility);
+                print(visibility);
+              },
             ),
             Text(textOrWhat),
-            Visibility(child: Image(image: MemoryImage(u8List)))
+            if (showImage) Image(image: AssetImage("assets/ai.jpg")),
           ],
         ),
       ),
@@ -63,11 +70,32 @@ class _TTSState extends State<TTS> {
     return encoded;
   }
 
+  void changeVisibility(int visibitityState){
+    switch(visibitityState){
+      case 0:{
+        setState(() {
+          showImage = false;
+          visibility = 1;
+        });
+      }
+      break;
+      case 1:{
+        setState(() {
+          showImage = true;
+          visibility = 0;
+        });
+      }
+      break;
+
+    }
+  }
+
   Uint8List decodeBase64(String encoded){
     var decoded = Uint8List.fromList(base64Decode(encoded));
     setState(() {
       u8List = decoded;
-      makeImage = true;
+      showImage = true;
+
     });
     return decoded;
   }
