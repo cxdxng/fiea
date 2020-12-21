@@ -29,13 +29,15 @@ class Background{
       Uint8List bytes = await imageFile.readAsBytes();
       return base64.encode(bytes);
     }
+
+    return null;
   }
 
   // Process result from STT and run the correct function for the command
   bool handleResults(String msg){
     if(msg.contains("info Kennung")){
       var split = splitResult(msg);
-      queryEntry(int.parse(split[2]));
+      querySingleData(int.parse(split[2]));
       return true;
     }else if(msg.contains("Gesicht hinzufügen")){
       var split = splitResult(msg);
@@ -51,7 +53,7 @@ class Background{
       delete(int.parse(split[3]));
 
     }else if(msg == "Datenbank anzeigen"){
-      queryFullData();
+      queryAllData();
     }
 
   return false;
@@ -71,15 +73,14 @@ class Background{
   }
 
   // Get all Data from the Database
-  void queryFullData() async {
-    final allRows = await dbHelper.queryAllRows();
-    print(allRows);
-    if(allRows.isNotEmpty) {
+  void queryAllData() async {
+    var allRows = await dbHelper.queryAllRows();
+    print(allRows[1]);
+  
+    if(allRows.isNotEmpty){
       allRows.forEach((row) {
-        var rowAsString = row.toString();
-        var formatted = formatString(rowAsString);
-        print(formatted.toString());
-        speakOut("${formatted[0]}\n${formatted[1]}\n${formatted[2]}");
+        speakOut("halloooooooooooooooooooolaaaaaaaaaaaaaaaaaaa");
+        print("lol");
       });
     }else{
       speakOut("Keine Daten vorhanden");
@@ -87,15 +88,17 @@ class Background{
     }
   }
 
-  void queryEntry(int id) async{
+  // Get single entry from Database 
+  void querySingleData(int id) async{
     var data = await dbHelper.queryOneRow(id);
     print(data[0]);
     var list = data[0].values.toList();
-    if(list[3] != null && list[3] != ""){
-      
-      speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten vorhanden");
-    }else{
-      speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten nicht vorhanden");
+    if(data.isNotEmpty){
+      if(list[3] != null && list[3] != ""){
+        speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten vorhanden");
+      }else{
+        speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten nicht vorhanden");
+      }
     }
   }
 
@@ -108,6 +111,7 @@ class Background{
     speakOut("Eintrag erfolgreich gelöscht");
   }
 
+  // Add faceata to person in Database
   void addFaceData(int id) async{
 
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -130,6 +134,8 @@ class Background{
   void speakOut(String msg)async{
     await tts.setLanguage("de-DE");
     await tts.speak(msg);
+    await tts.awaitSpeakCompletion(true);
+    print("speaking");
   }
 
   // +++Data formatting+++
@@ -161,3 +167,11 @@ class Background{
     return encoded;
   }
 }
+
+
+
+/**TODO
+ * Implement full database visualisation with Listview instead of TTS
+ * Face recogniion on facedata
+ * displaying Facedata and converting it from base64
+ */

@@ -73,7 +73,8 @@ class DatabaseHelper {
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    return await db.query(table);
+    //return await db.query(table);
+    return await db.rawQuery("SELECT * FROM $table");
   }
 
   Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
@@ -104,13 +105,3 @@ class DatabaseHelper {
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 }
-
-
-
-
-
-
-
-
-
-
