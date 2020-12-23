@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -73,8 +74,7 @@ class DatabaseHelper {
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    //return await db.query(table);
-    return await db.rawQuery("SELECT * FROM $table");
+    return await db.rawQuery("SELECT $columnId, $columnName, $columnBirth FROM $table");
   }
 
   Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
@@ -103,5 +103,15 @@ class DatabaseHelper {
   Future<int> delete(int id) async {
     Database db = await instance.database;
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
+  }
+
+  void deleteTable() async{
+
+    Database db = await instance.database;
+    await db.execute("DROP TABLE IF EXISTS $table");
+    print("Dropped table successfully");
+    await _onCreate(db, _databaseVersion);
+    print("Created new Table: $table");
+
   }
 }

@@ -2,18 +2,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/main.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+import 'package:fiea/TestUI.dart';
+
+
 
 class Background{
+
 
   /*
   +++COMMANDS+++
   - Gesicht hinzufügen
-  - neuer eintrag
+  - neuer Eintrag
   - Eintrag löschen
   - Datenbank anzeigen
   */
@@ -34,11 +40,10 @@ class Background{
   }
 
   // Process result from STT and run the correct function for the command
-  bool handleResults(String msg){
+  Future<List<Map<String, dynamic>>> handleResults(String msg)async {
     if(msg.contains("info Kennung")){
       var split = splitResult(msg);
       querySingleData(int.parse(split[2]));
-      return true;
     }else if(msg.contains("Gesicht hinzufügen")){
       var split = splitResult(msg);
       addFaceData(int.parse(split[3]));
@@ -53,10 +58,15 @@ class Background{
       delete(int.parse(split[3]));
 
     }else if(msg == "Datenbank anzeigen"){
-      queryAllData();
-    }
 
-  return false;
+      var cardInfo = await queryAllData();
+      
+      return cardInfo;
+
+    }else if(msg == "Datenbank löschen"){
+      dbHelper.deleteTable();
+    }
+    return null;
   }
 
   
@@ -73,19 +83,19 @@ class Background{
   }
 
   // Get all Data from the Database
-  void queryAllData() async {
+  Future<List<Map<String, dynamic>>> queryAllData() async {
     var allRows = await dbHelper.queryAllRows();
-    print(allRows[1]);
-  
+
     if(allRows.isNotEmpty){
-      allRows.forEach((row) {
-        speakOut("halloooooooooooooooooooolaaaaaaaaaaaaaaaaaaa");
-        print("lol");
-      });
+
+      speakOut("Bitteschön");
+      return allRows;
+
     }else{
       speakOut("Keine Daten vorhanden");
       print("Keine Daten vorhanden");
     }
+    return null;
   }
 
   // Get single entry from Database 
@@ -111,7 +121,7 @@ class Background{
     speakOut("Eintrag erfolgreich gelöscht");
   }
 
-  // Add faceata to person in Database
+  // Add facedata to person in Database
   void addFaceData(int id) async{
 
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -134,24 +144,9 @@ class Background{
   void speakOut(String msg)async{
     await tts.setLanguage("de-DE");
     await tts.speak(msg);
-    await tts.awaitSpeakCompletion(true);
-    print("speaking");
   }
 
   // +++Data formatting+++
-
-  List<String> formatString(String toEdit) {
-    var removeFrontBracket = toEdit.replaceAll("{", "");
-    var removeBackBracket = removeFrontBracket.replaceAll("}", "");
-    var splitAtComma = removeBackBracket.split(",");
-
-    var tempID = "Kennung: ${splitAtComma[0].replaceAll("_id: ", "").trim()}";
-    var tempName = "Name: ${splitAtComma[1].replaceAll("name: ", "").trim()}";
-    var tempBirth = "Geboren: ${splitAtComma[2].replaceAll("birth: ", "").trim()}";
-    var tempFacedata = splitAtComma[3].replaceAll("facedata: ", "").trim();
-
-    return [tempID, tempName, tempBirth, tempFacedata];
-  }
 
   // Split a String at it's spaces so it can
   // be processed later on in the code and treated
@@ -167,6 +162,8 @@ class Background{
     return encoded;
   }
 }
+
+
 
 
 

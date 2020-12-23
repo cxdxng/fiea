@@ -1,19 +1,30 @@
 import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
+import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
-  home: SpeechScreen(),
-  //home: TTS(),
+  initialRoute: '/',
+
+  routes: {
+    '/': (context) => SpeechScreen(),
+    '/test': (context) => TTS(),
+    '/dbviewer': (context) => DbViewer(),
+  },
 ));
 
 class SpeechScreen extends StatefulWidget {
+
+  static bool show = false;
+  static var entries = <String>['A', 'B', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];
+
 
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
@@ -25,20 +36,28 @@ class _SpeechScreenState extends State<SpeechScreen> {
   var _text = "F.I.E.A Bereit";
   var _confidence = 1.0;
   var lastStatus = "";
-  var showImage = false;
+
+  // BackgroundTask return results
+  static const String openDBViewer = "viewDB";
+
+
+  var blueAccent = Color(0xff33e1ed);
+  var darkBackground = Color(0xff1e1e2c);
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
   }
+  
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xff44D6E9),
+        backgroundColor: blueAccent,
         title: Text("Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -52,7 +71,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         child: FloatingActionButton(
           onPressed: () {
             listen();
-            showImage = false;
+            SpeechScreen.show = false;
           },
           backgroundColor: Color(0xff080e2c),
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),
@@ -85,12 +104,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 ),
               ),
             ),
-            if (showImage) Image(image: AssetImage("assets/affe.jpeg")),
           ],
         ),
       ),
     );
+    
   }
+
+  
 
   void statusListener(String status) {
     setState(() {
@@ -109,11 +130,19 @@ class _SpeechScreenState extends State<SpeechScreen> {
       if (result.hasConfidenceRating && result.confidence > 0) {
         _confidence = result.confidence;
       }
+    });
+    setState(() async{
+      
       if (msg != "" && lastStatus == "notListening") {
         print("msg is: +++$msg+++");
-        var setVisible = Background().handleResults(msg);
-        print(setVisible);
-        showImage = setVisible;
+        List<Map<String, dynamic>> result = await Background().handleResults(msg);
+        if(result != null){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DbViewer(entries: result,),
+            ));
+        }     
       }
     });
   }
