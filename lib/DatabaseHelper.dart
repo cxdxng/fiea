@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,10 +16,12 @@ class DatabaseHelper {
   static final columnName = 'name';
   static final columnBirth = 'birth';
   static final columnFacedata = "facedata";
+  static final columnIQ = "iq";
+  static final columnWeight = "weight";
+  static final columnHeight = "height";
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
-
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   // only have a single app-wide reference to the database
@@ -50,7 +50,10 @@ class DatabaseHelper {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnBirth INTEGER NOT NULL,
-            $columnFacedata TEXT
+            $columnFacedata TEXT,
+            $columnIQ INTEGER,
+            $columnWeight INTEGER,
+            $columnHeight INTEGER
           )
           ''');
   }
@@ -74,7 +77,7 @@ class DatabaseHelper {
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    return await db.rawQuery("SELECT $columnId, $columnName, $columnBirth FROM $table");
+    return await db.rawQuery("SELECT $columnId, $columnName, $columnBirth, $columnFacedata FROM $table");
   }
 
   Future<List<Map<String, dynamic>>> queryOneRow(int id) async{

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/TestUI.dart';
+import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -17,29 +18,41 @@ void main() => runApp(MaterialApp(
     '/': (context) => SpeechScreen(),
     '/test': (context) => TTS(),
     '/dbviewer': (context) => DbViewer(),
+    '/personCard': (context) => PersonCard(),
   },
 ));
 
 class SpeechScreen extends StatefulWidget {
 
   static bool show = false;
-  static var entries = <String>['A', 'B', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];
-
-
+  
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
 }
 
 class _SpeechScreenState extends State<SpeechScreen> {
   stt.SpeechToText _speech;
+  var bg = Background();
   var _isListening = false;
-  var _text = "F.I.E.A Bereit";
-  var _confidence = 1.0;
+  var _stateBusy = "F.I.E.A hört zu";
+  var _stateReady = "F.I.E.A Bereit";
+  var _sttState = "F.I.E.A Bereit";
+  var _text = "Sag etwas...";
+  var errorText = "Fehler, bitte versuche es erneut";
   var lastStatus = "";
 
-  // BackgroundTask return results
-  static const String openDBViewer = "viewDB";
+  var currentRequestCode = 100;
+  static const int normalRequest = 100;
+  static const int newEntry = 101;
+  static const int updateEntry = 102;
+  static const int deleteEntry = 103;
 
+  /* Request codes
+  100 = normal Request
+  101 = new entry
+  102 = update entry
+  103 = delete entry
+   */
 
   var blueAccent = Color(0xff33e1ed);
   var darkBackground = Color(0xff1e1e2c);
@@ -50,61 +63,69 @@ class _SpeechScreenState extends State<SpeechScreen> {
     _speech = stt.SpeechToText();
   }
   
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: blueAccent,
-        title: Text("Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%"),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: AvatarGlow(
-        animate: _isListening,
-        glowColor: Color(0xff44D6E9),
-        endRadius: 75,
-        duration: Duration(milliseconds: 2000),
-        repeatPauseDuration: Duration(milliseconds: 100),
-        repeat: true,
-        child: FloatingActionButton(
-          onPressed: () {
-            listen();
-            SpeechScreen.show = false;
-          },
-          backgroundColor: Color(0xff080e2c),
-          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+    return SafeArea(
+          child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: AvatarGlow(
+          animate: _isListening,
+          glowColor: Color(0xff44D6E9),
+          endRadius: 75,
+          duration: Duration(milliseconds: 2000),
+          repeatPauseDuration: Duration(milliseconds: 100),
+          repeat: true,
+          child: FloatingActionButton(
+            onPressed: () {
+              listen();
+              SpeechScreen.show = false;
+            },
+            backgroundColor: Color(0xff080e2c),
+            child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+          ),
         ),
-      ),
 
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/ai.jpg"),
-            fit: BoxFit.cover
-          )
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SingleChildScrollView(
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/ai.jpg"),
+              fit: BoxFit.cover
+            )
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 30.0),
+                child: Center(
+                  child: Text(
+                    _sttState,
+                    style: TextStyle(
+                      fontSize: 45,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    ),
+                ),
+              ),
+              SingleChildScrollView(
 
-              reverse: true,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(30, 30, 30, 150),
-                child: Text(
-                  _text,
-                  style: TextStyle(
-                    fontSize: 28,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
+                reverse: true,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(20, 30, 20, 150),
+                  child: Text(
+                    _text,
+                    style: TextStyle(
+                      fontSize: 28,
+                      color: Colors.white,
+                      //fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -117,8 +138,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
     setState(() {
       lastStatus = "$status";
       print(status);
+      
       if (status == "notListening") {
+        _sttState = _stateReady;
         listen();
+      }else{
+        _sttState = _stateBusy;
       }
     });
   }
@@ -127,23 +152,91 @@ class _SpeechScreenState extends State<SpeechScreen> {
     var msg = result.recognizedWords;
     setState(() {
       _text = msg;
-      if (result.hasConfidenceRating && result.confidence > 0) {
-        _confidence = result.confidence;
-      }
     });
     setState(() async{
-      
-      if (msg != "" && lastStatus == "notListening") {
-        print("msg is: +++$msg+++");
-        List<Map<String, dynamic>> result = await Background().handleResults(msg);
-        if(result != null){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DbViewer(entries: result,),
-            ));
-        }     
+     
+      if(msg != "" && lastStatus == "notListening"){
+        print("currentRequestCode: $currentRequestCode");
+        switch(currentRequestCode){
+          case 100:{
+            List<Map<String, dynamic>> result = await Background().handleResults(msg);
+            if(result != null && msg=="Datenbank anzeigen"){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DbViewer(entries: result,),
+                ));
+            }else if(result != null && msg.contains("info Kennung")){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PersonCard(entries: result,),
+                ));
+            }
+            print("ran 100");
+          }
+          break;
+          case newEntry:{
+
+            currentRequestCode = normalRequest;
+            var split = bg.splitResult(msg);
+            try{
+              bg.insert(split[0], int.parse(split[1]));
+
+            }catch(FormatException){
+              bg.speakOut(errorText);
+            }
+          }
+          break;
+          case updateEntry:{
+
+            currentRequestCode = normalRequest;
+            var split = bg.splitResult(msg);
+            try{
+              // using second index for id here because 
+              // of number formatting you need to say
+              // "Kennung" before the id because otherwise
+              // the stt returns the number in words
+              bg.update(int.parse(split[1]), split[2], split[3]);
+            }catch(FormatException){
+              bg.speakOut(errorText);
+            }
+            print("ran 102");
+
+          }
+          break;
+          case deleteEntry:{
+            currentRequestCode = normalRequest;
+            var split = bg.splitResult(msg);
+            try{
+              bg.delete(int.parse(split[1]));
+            }catch(FormatException){
+              bg.speakOut(errorText);
+            }
+
+          }
+          break;
+        }
+
+        switch(msg){
+          case "neuer Eintrag":{
+            bg.speakOut("Name und Jahr bitte");
+            currentRequestCode = newEntry;   
+          }
+          break;
+          case "Eintrag updaten":{
+            bg.speakOut("Kennung, Attribut und Wert bitte");
+            currentRequestCode = updateEntry;
+          }
+          break;
+          case "Eintrag löschen":{
+            bg.speakOut("Kennung bitte");
+            currentRequestCode = deleteEntry;          
+          }
+          break;
+        }
       }
+
     });
   }
 

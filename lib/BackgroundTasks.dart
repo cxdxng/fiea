@@ -30,37 +30,24 @@ class Background{
   String base64string;
 
 
-  Future<String> convertToBase64(File imageFile) async {
-    if (imageFile != null) {
-      Uint8List bytes = await imageFile.readAsBytes();
-      return base64.encode(bytes);
-    }
-
-    return null;
-  }
 
   // Process result from STT and run the correct function for the command
   Future<List<Map<String, dynamic>>> handleResults(String msg)async {
     if(msg.contains("info Kennung")){
       var split = splitResult(msg);
-      querySingleData(int.parse(split[2]));
+      try{
+        var singleData = await querySingleData(int.parse(split[2]));
+        return singleData;
+      }catch(FormatException){
+        print("Could not parse Int");
+        return null;
+      }
     }else if(msg.contains("Gesicht hinzufügen")){
       var split = splitResult(msg);
       addFaceData(int.parse(split[3]));
-    }else if(msg.contains("neuer Eintrag") || msg.contains("Neuer Eintrag")){
-
-      var split = splitResult(msg);
-      insert(split[2], int.parse(split[3]));
-
-    }else if(msg.contains("Eintrag löschen")){
-      
-      var split = splitResult(msg);
-      delete(int.parse(split[3]));
-
     }else if(msg == "Datenbank anzeigen"){
 
       var cardInfo = await queryAllData();
-      
       return cardInfo;
 
     }else if(msg == "Datenbank löschen"){
@@ -78,8 +65,43 @@ class Background{
       DatabaseHelper.columnBirth  : year
     };
     final id = await dbHelper.insert(row);
-    print('inserted row id: $id');
-    speakOut('Erfolgreich eingetragen\n neue Kennung: $id');
+    speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
+  }
+
+  void update(int id, String toUpdate, String value)async{
+    switch(toUpdate){
+      case "IQ":{
+        Map<String, dynamic> row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnIQ: int.parse(value),
+        };
+        final rowsAffected = await dbHelper.update(row);
+        if (rowsAffected == 1 ) {
+          speakOut("Eintrag erfolgreich aktualisiert");
+        }else{
+          speakOut("Fehler, bitte versuche es erneut");
+        }
+      }
+      break;
+      case "Gewicht": {
+        Map<String, dynamic> row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnWeight: int.parse(value),
+        };
+        final rowsAffected = await dbHelper.update(row);
+        print(rowsAffected);
+      }
+      break;
+      case "Größe": {
+        Map<String, dynamic> row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnHeight: int.parse(value)
+        };
+        final rowsAffected = await dbHelper.update(row);
+        print(rowsAffected);
+      }
+    }
+    
   }
 
   // Get all Data from the Database
@@ -99,17 +121,12 @@ class Background{
   }
 
   // Get single entry from Database 
-  void querySingleData(int id) async{
-    var data = await dbHelper.queryOneRow(id);
-    print(data[0]);
-    var list = data[0].values.toList();
-    if(data.isNotEmpty){
-      if(list[3] != null && list[3] != ""){
-        speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten vorhanden");
-      }else{
-        speakOut("Kennung: ${list[0]}\n Name: ${list[1]}\n Geboren: ${list[2]}\n Gesichtsdaten nicht vorhanden");
-      }
+  Future<List<Map<String, dynamic>>> querySingleData(int id) async{
+    var singleRow = await dbHelper.queryOneRow(id);
+    if(singleRow.isNotEmpty){
+      return singleRow;
     }
+    return null;
   }
 
   // Delete an Entry from the Database
@@ -161,14 +178,12 @@ class Background{
     var encoded = base64.encode(bytes);
     return encoded;
   }
+  
+  Uint8List decodeBase64(String encoded){
+    var decoded = Uint8List.fromList(base64Decode(encoded));
+    
+    return decoded;
+  }
 }
 
-
-
-
-
-/**TODO
- * Implement full database visualisation with Listview instead of TTS
- * Face recogniion on facedata
- * displaying Facedata and converting it from base64
- */
+/* https://trello.com/b/oECiBL2s/fiea */
