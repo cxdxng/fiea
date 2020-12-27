@@ -1,11 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:fiea/BackgroundTasks.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
 class PersonCard extends StatelessWidget {
-
   Color darkBackground = Color(0xff1e1e2c);
 
   final List<Map<String, dynamic>> entries;
@@ -14,33 +11,30 @@ class PersonCard extends StatelessWidget {
   String tempBirth;
   String tempFacedata;
 
-
   PersonCard({Key key, this.entries}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
-
     //print("From PersonInfo: $entries");
-    
+
     return SafeArea(
-      
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed: () {Navigator.pop(context);},
-          child: Icon(Icons.close),        
-          ),
-        body: Container(  
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Icon(Icons.close),
+        ),
+        body: Container(
           color: darkBackground,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Card(
               color: Color(0xff2D2D44),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8,20,8,0),
+                padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
                 child: Column(
                   children: [
-                                        
                     checkForFaceData(),
                     Padding(
                       padding: const EdgeInsets.only(top: 30),
@@ -51,7 +45,7 @@ class PersonCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                        ),
+                      ),
                     ),
                     Divider(
                       height: 60,
@@ -63,7 +57,7 @@ class PersonCard extends StatelessWidget {
                         child: Row(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(10,0,0,20),
+                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
                               child: Text(
                                 makeSubTitle(),
                                 style: TextStyle(
@@ -77,7 +71,7 @@ class PersonCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],  
+                  ],
                 ),
               ),
             ),
@@ -87,52 +81,48 @@ class PersonCard extends StatelessWidget {
     );
   }
 
-String makeTitle(){
+  String makeTitle() {
     data = entries[0];
-    
     tempName = data["name"];
-    
     return tempName;
-}
+  }
 
-String makeSubTitle(){
-  data = entries[0];
-  var tempId = data["_id"];
-  var tempDate = data["birth"];
-  var tempHeight = data["height"];
-  var tempIQ = data["iq"];
-  var tempWeight = data["weight"];
-  var personInfo = "Kennung: $tempId\nGeboren: $tempDate\nIQ: $tempIQ\nGröße: $tempHeight cm\nGewicht: $tempWeight kg";
+  String makeSubTitle() {
+    data = entries[0];
+    var tempId = data["_id"];
+    var tempDate = data["birth"];
+    var tempHeight = data["height"];
+    var tempIQ = data["iq"];
+    var tempWeight = data["weight"];
+    var personInfo =
+        "Kennung: $tempId\nGeboren: $tempDate\nIQ: $tempIQ\nGröße: $tempHeight cm\nGewicht: $tempWeight kg";
 
-  return personInfo;
-  
-}
+    return personInfo;
+  }
 
-Widget checkForFaceData(){
+  Widget checkForFaceData() {
     data = entries[0];
     tempName = data["name"];
     tempFacedata = data["facedata"];
-    
 
-    if(tempFacedata != null){
-      var image =  Background().decodeBase64(tempFacedata);
+    if (tempFacedata != null) {
+      var image = Background().decodeBase64(tempFacedata);
       return CircleAvatar(
         backgroundImage: MemoryImage(image),
-        radius: 130,       
-        );
-    }else{
+        radius: 130,
+      );
+    } else {
       return CircleAvatar(
         backgroundColor: Color(0xff152676),
-        radius: 130,                          
+        radius: 130,
         child: Text(
           tempName[0],
           style: TextStyle(
             fontSize: 50,
             color: Colors.white,
           ),
-          ),
-        );
+        ),
+      );
     }
   }
-
 }
