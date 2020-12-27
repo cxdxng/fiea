@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class PersonCard extends StatelessWidget {
   Color darkBackground = Color(0xff1e1e2c);
+  Color blueAccent = Color(0xff33e1ed);
 
   final List<Map<String, dynamic>> entries;
   Map data;
@@ -20,6 +21,7 @@ class PersonCard extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(0xff2D2D44),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -30,7 +32,8 @@ class PersonCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Card(
-              color: Color(0xff2D2D44),
+              //color: Color(0xff2D2D44),
+              color: Colors.blueAccent,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
                 child: Column(
