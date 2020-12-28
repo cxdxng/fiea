@@ -94,11 +94,22 @@ class PersonCard extends StatelessWidget {
     data = entries[0];
     var tempId = data["_id"];
     var tempDate = data["birth"];
-    var tempHeight = data["height"];
+    var tempHeight = "${data["height"]} cm";
     var tempIQ = data["iq"];
-    var tempWeight = data["weight"];
+    var tempWeight = "${data["weight"]} kg";
+
+    if(tempHeight == "null cm"){
+      tempHeight = "Nicht vorhanden";    
+      }
+    if(tempIQ == null){
+      tempIQ = "Nicht vorhanden";
+    }
+    if(tempWeight == "null kg"){
+      tempWeight = "Nicht vorhanden";
+    }
+
     var personInfo =
-        "Kennung: $tempId\nGeboren: $tempDate\nIQ: $tempIQ\nGröße: $tempHeight cm\nGewicht: $tempWeight kg";
+        "Kennung: $tempId\nGeboren: $tempDate\nIQ: $tempIQ\nGröße: $tempHeight\nGewicht: $tempWeight";
 
     return personInfo;
   }

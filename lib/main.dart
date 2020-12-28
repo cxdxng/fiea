@@ -12,7 +12,7 @@ import 'BackgroundTasks.dart';
 import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
-  initialRoute: '/',
+  initialRoute: '/test',
 
   routes: {
     '/': (context) => SpeechScreen(),
@@ -24,7 +24,7 @@ void main() => runApp(MaterialApp(
 
 class SpeechScreen extends StatefulWidget {
 
-  static bool show = false;
+  static bool isFinishedWithTalking = true;
   
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
@@ -56,6 +56,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   var blueAccent = Color(0xff33e1ed);
   var darkBackground = Color(0xff1e1e2c);
+  Color fabColor = Color(0xff080e2c);
+
 
   @override
   void initState() {
@@ -77,10 +79,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
           repeat: true,
           child: FloatingActionButton(
             onPressed: () {
-              listen();
-              SpeechScreen.show = false;
+              if (SpeechScreen.isFinishedWithTalking) {
+                listen();
+              }            
             },
-            backgroundColor: Color(0xff080e2c),
+            backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
         ),
@@ -157,6 +160,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
      
       if(msg != "" && lastStatus == "notListening"){
         print("currentRequestCode: $currentRequestCode");
+
         switch(currentRequestCode){
           case 100:{
             List<Map<String, dynamic>> result = await Background().handleResults(msg);
@@ -172,6 +176,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 MaterialPageRoute(
                   builder: (context) => PersonCard(entries: result,),
                 ));
+            }else{
+              Background().speakOut("Tut mir leid, da kann ich noch nicht weiterhelfen");
             }
             print("ran 100");
           }
