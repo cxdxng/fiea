@@ -10,16 +10,20 @@ class TTS extends StatefulWidget {
 class _TTSState extends State<TTS> {
 
 
+
   @override
   Widget build(BuildContext context) {
     print("object");
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text("TEST"),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("Hello word"),
+          Image.asset("assets/ai6.gif")
         ],
       )
     );

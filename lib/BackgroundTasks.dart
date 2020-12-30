@@ -6,9 +6,12 @@ import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+
+
+//import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:fiea/TestUI.dart';
 
@@ -163,7 +166,7 @@ class Background{
   // Speak out the msg using TTS
   void speakOut(String msg)async{
     await tts.setLanguage("de-DE");
-    await tts.speak(msg);
+    await tts.speak(msg); 
 
     tts.setStartHandler(() {
       SpeechScreen.isFinishedWithTalking = false;

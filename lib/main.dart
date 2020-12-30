@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:fiea/Chatbot.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
@@ -12,7 +13,7 @@ import 'BackgroundTasks.dart';
 import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
-  initialRoute: '/test',
+  initialRoute: '/',
 
   routes: {
     '/': (context) => SpeechScreen(),
@@ -69,6 +70,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
           child: Scaffold(
+            backgroundColor: Colors.black,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: AvatarGlow(
           animate: _isListening,
@@ -91,8 +93,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/ai.jpg"),
-              fit: BoxFit.cover
+              //image: AssetImage("assets/ai.jpg"),
+              image: AssetImage("assets/ai6.gif"),
+              //fit: BoxFit.fitWidth
             )
           ),
           child: Column(
@@ -156,7 +159,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
     setState(() {
       _text = msg;
     });
-    setState(() async{
+
+    if (msg != "" && lastStatus == "notListening") {
+
+      Chatbot().analyseMsg(msg);
+      
+    }
+    /* setState(() async{
      
       if(msg != "" && lastStatus == "notListening"){
         print("currentRequestCode: $currentRequestCode");
@@ -243,7 +252,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         }
       }
 
-    });
+    }); */
   }
 
   void listen() async {
