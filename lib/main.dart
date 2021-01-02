@@ -47,12 +47,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
   static const int newEntry = 101;
   static const int updateEntry = 102;
   static const int deleteEntry = 103;
+  static const int addPhonenumber = 104;
 
   /* Request codes
   100 = normal Request
   101 = new entry
   102 = update entry
   103 = delete entry
+  104 = add phone number
    */
 
   var blueAccent = Color(0xff33e1ed);
@@ -94,7 +96,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               //image: AssetImage("assets/ai.jpg"),
-              image: AssetImage("assets/ai6.gif"),
+              image: AssetImage("assets/finalAI.gif"),
               //fit: BoxFit.fitWidth
             )
           ),
@@ -159,19 +161,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
     setState(() {
       _text = msg;
     });
-
-    if (msg != "" && lastStatus == "notListening") {
-
-      Chatbot().analyseMsg(msg);
-      
-    }
-    /* setState(() async{
+    setState(() async{
      
       if(msg != "" && lastStatus == "notListening"){
         print("currentRequestCode: $currentRequestCode");
 
         switch(currentRequestCode){
-          case 100:{
+          case normalRequest:{
             List<Map<String, dynamic>> result = await Background().handleResults(msg);
             if(result != null && msg=="Datenbank anzeigen"){
               Navigator.push(
@@ -186,7 +182,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   builder: (context) => PersonCard(entries: result,),
                 ));
             }else{
-              Background().speakOut("Tut mir leid, da kann ich noch nicht weiterhelfen");
+              bg.speakOut("Das habe ich nicht verstanden");
             }
             print("ran 100");
           }
@@ -249,10 +245,16 @@ class _SpeechScreenState extends State<SpeechScreen> {
             currentRequestCode = deleteEntry;          
           }
           break;
+          case "aktiviere Affen Modus":{
+            bg.speakOut("lol");
+            //Navigator.pushNamed(context, "/affenmode");
+
+          }
+          
         }
       }
 
-    }); */
+    });
   }
 
   void listen() async {

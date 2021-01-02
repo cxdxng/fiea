@@ -167,7 +167,7 @@ class Background{
   void speakOut(String msg)async{
     await tts.setLanguage("de-DE");
     await tts.speak(msg); 
-
+    
     tts.setStartHandler(() {
       SpeechScreen.isFinishedWithTalking = false;
     });

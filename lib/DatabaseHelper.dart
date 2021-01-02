@@ -19,6 +19,7 @@ class DatabaseHelper {
   static final columnIQ = "iq";
   static final columnWeight = "weight";
   static final columnHeight = "height";
+  static final columnPhonenumber = "phonenumber";
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -53,7 +54,8 @@ class DatabaseHelper {
             $columnFacedata TEXT,
             $columnIQ INTEGER,
             $columnWeight INTEGER,
-            $columnHeight INTEGER
+            $columnHeight INTEGER,
+            $columnPhonenumber TEXT
           )
           ''');
   }
