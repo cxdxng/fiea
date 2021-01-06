@@ -8,6 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
 
 
@@ -32,6 +34,9 @@ class Background{
   final dbHelper = DatabaseHelper.instance;
   FlutterTts tts = FlutterTts();
   String base64string;
+  String nA = "Nicht vorhanden";
+
+  Map<String, dynamic> row;
 
 
 
@@ -56,56 +61,93 @@ class Background{
 
     }else if(msg == "Datenbank löschen"){
       dbHelper.deleteTable();
+      
     }
     return null;
   }
 
   
   // Insert a new Entry into the Database
-  void insert(String name, int year) async {
+  void insert(String name, int year) async {    
     // row to insert
-    Map<String, dynamic> row = {
+    row = {
       DatabaseHelper.columnName : name,
-      DatabaseHelper.columnBirth  : year
+      DatabaseHelper.columnBirth : year,
+      DatabaseHelper.columnIQ : nA,
+      DatabaseHelper.columnWeight : nA,
+      DatabaseHelper.columnHeight : nA,
+      DatabaseHelper.columnPhonenumber : nA,
+      DatabaseHelper.columnAddress : nA,
+      DatabaseHelper.columnFacedata: nA,
     };
     final id = await dbHelper.insert(row);
+    print(row);
     speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
   }
 
-  void update(int id, String toUpdate, String value)async{
+  Future<int> update(int id, String toUpdate, String value)async{
     switch(toUpdate){
       case "IQ":{
-        Map<String, dynamic> row = {
+        row = {
           DatabaseHelper.columnId: id,
           DatabaseHelper.columnIQ: int.parse(value),
         };
-        final rowsAffected = await dbHelper.update(row);
-        if (rowsAffected == 1 ) {
-          speakOut("Eintrag erfolgreich aktualisiert");
-        }else{
-          speakOut("Fehler, bitte versuche es erneut");
-        }
+        return await dbHelper.update(row);
       }
       break;
       case "Gewicht": {
-        Map<String, dynamic> row = {
+        row = {
           DatabaseHelper.columnId: id,
-          DatabaseHelper.columnWeight: int.parse(value),
+          DatabaseHelper.columnWeight: "$value kg",
         };
-        final rowsAffected = await dbHelper.update(row);
-        print(rowsAffected);
+        return await dbHelper.update(row);
       }
       break;
       case "Größe": {
-        Map<String, dynamic> row = {
+        row = {
           DatabaseHelper.columnId: id,
-          DatabaseHelper.columnHeight: int.parse(value)
+          DatabaseHelper.columnHeight: "$value cm"
         };
-        final rowsAffected = await dbHelper.update(row);
-        print(rowsAffected);
+        return await dbHelper.update(row);        
+      }
+      break;
+      case "Nummer": {
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnPhonenumber: value
+        };
+        return await dbHelper.update(row);
+      }
+      break;
+      case "Adresse": {
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnAddress : value
+        };
+        return await dbHelper.update(row);
       }
     }
-    
+    return 0;
+  }
+
+  void manualUpdate(List<String> data)async{
+    row = {
+      DatabaseHelper.columnName: data[0],
+      DatabaseHelper.columnBirth: data[1],
+      DatabaseHelper.columnIQ: data[2],
+      DatabaseHelper.columnHeight: data[3],
+      DatabaseHelper.columnWeight: data[4],
+      DatabaseHelper.columnPhonenumber: data[5],
+      DatabaseHelper.columnAddress: data[6],
+      DatabaseHelper.columnId: data[7],
+      DatabaseHelper.columnFacedata: data[8],
+    };
+    print(row);
+    int success = await dbHelper.update(row);
+    if(success == 1){
+      speakOut("Änderungen erfolgreich übernommen");
+    }
+
   }
 
   // Get all Data from the Database
@@ -159,6 +201,17 @@ class Background{
       }
     }
     
+  }
+
+  void callID(String id)async{
+    try{
+      List<Map<String, dynamic>> result = await querySingleData(int.parse(id));
+      var data = result[0];
+      launch("tel://${data["number"]}");
+    }catch(e){
+      print(e);
+      speakOut("Fehler, bitte versuche es erneut");
+    }
   }
 
   

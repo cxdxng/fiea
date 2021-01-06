@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:fiea/Chatbot.dart';
 import 'package:fiea/DatabaseViewer.dart';
+import 'package:fiea/EditInfo.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ void main() => runApp(MaterialApp(
     '/test': (context) => TTS(),
     '/dbviewer': (context) => DbViewer(),
     '/personCard': (context) => PersonCard(),
+    '/editInfo': (context) => EditPersonInfo(),
   },
 ));
 
@@ -41,26 +43,26 @@ class _SpeechScreenState extends State<SpeechScreen> {
   var _text = "Sag etwas...";
   var errorText = "Fehler, bitte versuche es erneut";
   var lastStatus = "";
+  List<String> split;
 
   var currentRequestCode = 100;
   static const int normalRequest = 100;
   static const int newEntry = 101;
   static const int updateEntry = 102;
   static const int deleteEntry = 103;
-  static const int addPhonenumber = 104;
+  static const int makeCall = 104;
 
   /* Request codes
   100 = normal Request
   101 = new entry
   102 = update entry
   103 = delete entry
-  104 = add phone number
+  104 = make call
    */
 
   var blueAccent = Color(0xff33e1ed);
   var darkBackground = Color(0xff1e1e2c);
   Color fabColor = Color(0xff080e2c);
-
 
   @override
   void initState() {
@@ -71,8 +73,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.black,
+      child: Scaffold(
+        backgroundColor: Colors.black,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: AvatarGlow(
           animate: _isListening,
@@ -95,9 +97,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              //image: AssetImage("assets/ai.jpg"),
               image: AssetImage("assets/finalAI.gif"),
-              //fit: BoxFit.fitWidth
             )
           ),
           child: Column(
@@ -117,7 +117,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 ),
               ),
               SingleChildScrollView(
-
                 reverse: true,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 30, 20, 150),
@@ -137,10 +136,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         ),
       ),
     );
-    
   }
-
-  
 
   void statusListener(String status) {
     setState(() {
@@ -162,7 +158,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
       _text = msg;
     });
     setState(() async{
-     
       if(msg != "" && lastStatus == "notListening"){
         print("currentRequestCode: $currentRequestCode");
 
@@ -181,6 +176,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 MaterialPageRoute(
                   builder: (context) => PersonCard(entries: result,),
                 ));
+            }else if(result == null && msg=="Datenbank anzeigen"){
+              bg.speakOut("Keine Daten vorhanden");
             }else{
               bg.speakOut("Das habe ich nicht verstanden");
             }
@@ -188,43 +185,48 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           break;
           case newEntry:{
-
             currentRequestCode = normalRequest;
-            var split = bg.splitResult(msg);
+            split = bg.splitResult(msg);
             try{
               bg.insert(split[0], int.parse(split[1]));
-
             }catch(FormatException){
               bg.speakOut(errorText);
             }
           }
           break;
           case updateEntry:{
-
             currentRequestCode = normalRequest;
-            var split = bg.splitResult(msg);
+            split = bg.splitResult(msg);
             try{
               // using second index for id here because 
               // of number formatting you need to say
               // "Kennung" before the id because otherwise
               // the stt returns the number in words
-              bg.update(int.parse(split[1]), split[2], split[3]);
+              int success = bg.update(int.parse(split[1]), split[2], split[3]) as int;
+              if(success == 1){
+                bg.speakOut("Änderungen erfolgreich übernommen");
+              }
+
             }catch(FormatException){
               bg.speakOut(errorText);
             }
             print("ran 102");
-
           }
           break;
           case deleteEntry:{
             currentRequestCode = normalRequest;
-            var split = bg.splitResult(msg);
+            split = bg.splitResult(msg);
             try{
               bg.delete(int.parse(split[1]));
             }catch(FormatException){
               bg.speakOut(errorText);
             }
-
+          }
+          break;
+          case makeCall:{
+            currentRequestCode = normalRequest;
+            split = bg.splitResult(msg);
+            bg.callID(split[1]);
           }
           break;
         }
@@ -245,15 +247,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
             currentRequestCode = deleteEntry;          
           }
           break;
-          case "aktiviere Affen Modus":{
-            bg.speakOut("lol");
-            //Navigator.pushNamed(context, "/affenmode");
-
+          case "anruf tätigen":{
+            print(msg);
+            bg.speakOut("Welche Kennung möchten Sie anrufen?");
+            currentRequestCode = makeCall;
           }
-          
         }
       }
-
     });
   }
 

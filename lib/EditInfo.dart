@@ -1,36 +1,43 @@
 import 'package:fiea/BackgroundTasks.dart';
-import 'package:fiea/EditInfo.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
-class PersonCard extends StatelessWidget {
+class EditPersonInfo extends StatelessWidget {
 
   Color darkBackground = Color(0xff1e1e2c);
   Color blueAccent = Color(0xff33e1ed);
 
   final List<Map<String, dynamic>> entries;
+  List<String> parameters = ["Name", "Geboren", "IQ", "Größe", "Gewicht", "Nummer", "Addresse"];
+  List<String> values;
+  List<TextEditingController> controllerList;
+
+  TextEditingController nameController, birthController, iqController, heightController, weightController, numberController, addressController = TextEditingController();
   Map data;
 
   String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
   String nA = "Nicht vorhanden";
 
-  PersonCard({Key key, this.entries}) : super(key: key);
-
-
+  EditPersonInfo({Key key, this.entries}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     //print("From PersonInfo: $entries");
 
+    controllerList = [nameController, birthController, iqController, heightController, weightController, numberController, addressController];
+    setInfos();
+    values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata];
+    
+
+
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xff2D2D44),
-          onPressed: () {
-            //Navigator.pop(context);
-            changeRoute(context);
+          onPressed: () async {
+            await Background().manualUpdate(values);
+            Navigator.popUntil(context, ModalRoute.withName('/'));
           },
-          child: Icon(Icons.edit),
+          child: Icon(Icons.save),
         ),
         body: Container(
           color: darkBackground,
@@ -60,25 +67,11 @@ class PersonCard extends StatelessWidget {
                       thickness: 2,
                       color: darkBackground,
                     ),
+                    
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
-                              child: Text(
-                                makeSubTitle(),
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  height: 2,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: makeSubTitle()
                     ),
+                    
                   ],
                 ),
               ),
@@ -88,27 +81,65 @@ class PersonCard extends StatelessWidget {
       ),
     );
   }
-
   String makeTitle() {
     data = entries[0];
-    tempName = data["name"];
+    tempName = data["displayName"];
     return tempName;
   }
-
-  String makeSubTitle() {
+  void setInfos(){
     data = entries[0];
     tempId = data["_id"].toString();
+    tempName = data["name"].toString();
     tempBirth = data["birth"].toString();
     tempHeight = data["height"].toString();
     tempIQ = data["iq"].toString();
     tempWeight = data["weight"].toString();
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
+    tempFacedata = data["facedata"].toString();
+  }
 
-    var personInfo =
-        "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße: $tempHeight\nGewicht: $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress";
+  Widget makeSubTitle() {
+    data = entries[0];
+    var list = [];
 
-    return personInfo;
+    data.forEach((key, value) {list.add(value);});
+    
+    return ListView.builder(
+      itemCount: data.length-3,
+      itemBuilder: (BuildContext context, int index){
+        return Padding(
+          padding: const EdgeInsets.all(3),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: Text(
+                  parameters[index],
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+              TextFormField(
+                //controller: controllerList[index],
+                style: TextStyle(color: Colors.black),
+                onChanged: (value) => values[index] = value,
+                decoration: InputDecoration(
+                  hintText: values[index],
+                  
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    );
   }
 
   Widget checkForFaceData() {
@@ -135,32 +166,5 @@ class PersonCard extends StatelessWidget {
         ),
       );
     }
-  }
-
-  void changeRoute(BuildContext context){
-
-    Map<String, dynamic> content = {
-      //"_id": tempId,
-      "name": tempName,
-      "birth": tempBirth,
-      "iq": tempIQ,
-      "height": tempHeight,
-      "weight": tempWeight,
-      "number": tempNumber,
-      "address": tempAddress,
-      "displayName": tempName,
-      "_id": tempId,
-      "facedata": tempFacedata,
-
-      //"facedata": tempFacedata
-    };
-    List<Map<String, dynamic>> lol = List();
-    lol.add(content);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditPersonInfo(entries: lol,),
-    )).then((value){
-    });
   }
 }

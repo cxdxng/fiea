@@ -1,3 +1,4 @@
+import 'package:fiea/BackgroundTasks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +22,7 @@ class _TTSState extends State<TTS> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           RaisedButton(
-            onPressed: () => launch("tel://01713006650"),
+            onPressed: () => Background().callID("1"),
             child: Text("Call Marlon"),
           ),
           Text("Hello word"),

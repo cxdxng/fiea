@@ -10,9 +10,9 @@ class DbViewer extends StatelessWidget {
   Color darkBackground = Color(0xff1e1e2c);
   final List<Map<String, dynamic>> entries;
   Map data;
-  String tempName;
-  String tempBirth;
-  String tempFacedata;
+  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
+  String nA = "Nicht vorhanden";
+
     
   DbViewer({Key key, this.entries}) : super(key: key);
 
@@ -113,7 +113,7 @@ class DbViewer extends StatelessWidget {
     tempFacedata = data["facedata"];
     
 
-    if(tempFacedata != null) return "Geboren: $tempDate\nGesichtsdaten: vorhanden";
+    if(tempFacedata != nA) return "Geboren: $tempDate\nGesichtsdaten: vorhanden";
     else return "Geboren: $tempDate\nGesichtsdaten: nicht vorhanden";
   }
 
@@ -123,7 +123,7 @@ class DbViewer extends StatelessWidget {
     tempFacedata = data["facedata"];
     
 
-    if(tempFacedata != null){
+    if(tempFacedata != nA){
       var image =  Background().decodeBase64(tempFacedata);
       return CircleAvatar(
         backgroundImage: MemoryImage(image),
@@ -146,16 +146,27 @@ class DbViewer extends StatelessWidget {
 
   void changeRoute(BuildContext context, int index){
     data = entries[index];
-    var tempId = data["_id"];
-    tempName = data["name"];
-    var tempDate = data["birth"];
     tempFacedata = data["facedata"];
+
+    tempName = data["name"].toString();
+    tempId = data["_id"].toString();
+    tempBirth = data["birth"].toString();
+    tempHeight = data["height"].toString();
+    tempIQ = data["iq"].toString();
+    tempWeight = data["weight"].toString();
+    tempNumber = data["number"].toString();
+    tempAddress = data["address"].toString();
 
     Map<String, dynamic> content = {
       "_id": tempId,
       "name": tempName,
-      "birth": tempDate,
-      "facedata": tempFacedata
+      "birth": tempBirth,
+      "facedata": tempFacedata,
+      "iq": tempIQ,
+      "height": tempHeight,
+      "weight": tempWeight,
+      "number": tempNumber,
+      "address": tempAddress,
     };
     List<Map<String, dynamic>> lol = List();
     lol.add(content);

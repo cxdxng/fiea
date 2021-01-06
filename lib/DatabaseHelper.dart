@@ -19,8 +19,8 @@ class DatabaseHelper {
   static final columnIQ = "iq";
   static final columnWeight = "weight";
   static final columnHeight = "height";
-  static final columnPhonenumber = "phonenumber";
-
+  static final columnPhonenumber = "number";
+  static final columnAddress = "address";
   // make this a singleton class
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -50,12 +50,13 @@ class DatabaseHelper {
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
-            $columnBirth INTEGER NOT NULL,
+            $columnBirth TEXT NOT NULL,
             $columnFacedata TEXT,
-            $columnIQ INTEGER,
-            $columnWeight INTEGER,
-            $columnHeight INTEGER,
-            $columnPhonenumber TEXT
+            $columnIQ TEXT NOT NULL,
+            $columnWeight TEXT NOT NULL,
+            $columnHeight TEXT NOT NULL,
+            $columnPhonenumber TEXT NOT NULL,
+            $columnAddress TEXT
           )
           ''');
   }
@@ -79,7 +80,7 @@ class DatabaseHelper {
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    return await db.rawQuery("SELECT $columnId, $columnName, $columnBirth, $columnFacedata FROM $table");
+    return await db.rawQuery("SELECT * FROM $table");
   }
 
   Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
@@ -93,8 +94,15 @@ class DatabaseHelper {
   // column values will be used to update the row.
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    int id = row[columnId];
-    return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    try{
+      int id = int.parse(row[columnId]);
+      print(id);
+      return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+
+    }catch(FormatException){
+      print("ERROR");
+    }
+    return null;
   }
 
   Future<String> addFace(String facedata, int id)async{
