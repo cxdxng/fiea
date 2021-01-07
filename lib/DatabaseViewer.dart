@@ -124,11 +124,12 @@ class DbViewer extends StatelessWidget {
     
 
     if(tempFacedata != nA){
-      var image =  Background().decodeBase64(tempFacedata);
+      var image = Background().decodeBase64(tempFacedata);
       return CircleAvatar(
         backgroundImage: MemoryImage(image),
         radius: 70,       
-        );
+        backgroundColor: Colors.white,
+      );
     }else{
       return CircleAvatar(
         backgroundColor: Color(0xff152676),

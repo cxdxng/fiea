@@ -1,22 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/main.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
-
-
-//import 'package:flutter_tts/flutter_tts.dart';
-
-import 'package:fiea/TestUI.dart';
-
 
 
 class Background{
@@ -35,35 +28,68 @@ class Background{
   FlutterTts tts = FlutterTts();
   String base64string;
   String nA = "Nicht vorhanden";
+  String errorText = "Fehler, bitte versuche es erneut";
+
+  bool isTTSfinished = true;
+
 
   Map<String, dynamic> row;
 
+  
+  
 
 
   // Process result from STT and run the correct function for the command
-  Future<List<Map<String, dynamic>>> handleResults(String msg)async {
+  Future<bool> handleResults(String msg, BuildContext context)async {
     if(msg.contains("info Kennung")){
-      var split = splitResult(msg);
+
       try{
+        var split = splitResult(msg);
         var singleData = await querySingleData(int.parse(split[2]));
-        return singleData;
-      }catch(FormatException){
-        print("Could not parse Int");
-        return null;
+
+        if(singleData != null){
+          speakOut("Daten von Kennung ${split[2]}\nBitteschön");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => PersonCard(entries:singleData)));
+        }
+        return true;
+      }catch(e){
+        speakOut(errorText);
       }
+
     }else if(msg.contains("Gesicht hinzufügen")){
+
       var split = splitResult(msg);
-      addFaceData(int.parse(split[3]));
+      String result = await generateFaceData();
+
+      if(result != ""){
+        dbHelper.addFace(result, int.parse(split[3]));
+        speakOut("Gesichtsdaten erfolgreich hinzugefügt");
+      }else{
+        speakOut(errorText);
+      }
+      return true;
+
     }else if(msg == "Datenbank anzeigen"){
 
       var cardInfo = await queryAllData();
-      return cardInfo;
-
+      if(cardInfo != null){
+        speakOut("Bitteschön");
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DbViewer(entries: cardInfo)));
+      }else{
+        speakOut("Keine Daten vorhanden");
+      }
+      return true;
     }else if(msg == "Datenbank löschen"){
-      dbHelper.deleteTable();
-      
+
+      bool success = dbHelper.deleteTable() as bool;
+      if(success){
+        speakOut("Datenbank erfolgreich gelöscht\nNeue Daten bank wurde automatisch erstellt");
+      }else{
+        speakOut(errorText);
+      }
+      return true;
     }
-    return null;
+    return false;
   }
 
   
@@ -155,15 +181,11 @@ class Background{
     var allRows = await dbHelper.queryAllRows();
 
     if(allRows.isNotEmpty){
-
-      speakOut("Bitteschön");
       return allRows;
-
-    }else{
-      speakOut("Keine Daten vorhanden");
-      print("Keine Daten vorhanden");
     }
+    
     return null;
+    
   }
 
   // Get single entry from Database 
@@ -185,51 +207,44 @@ class Background{
   }
 
   // Add facedata to person in Database
-  void addFaceData(int id) async{
+  Future<String> generateFaceData() async{
 
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     if(imageFile != null) {
       base64string = await encodeBase64(imageFile);
       print(base64string);
-
-      if(base64string != null || base64string != ""){
-        var success = dbHelper.addFace(base64string, id);
-        print(success);
-        speakOut("Gesichtsdaten erfolgreich hinzugefügt");
-      }else{
-        print("Base64 data empty");
-      }
+      return base64string;
     }
+
+    return "";
     
   }
 
-  void callID(String id)async{
+  void callID(String msg)async{
     try{
-      List<Map<String, dynamic>> result = await querySingleData(int.parse(id));
+      var split = splitResult(msg); 
+      List<Map<String, dynamic>> result = await querySingleData(int.parse(split[1]));
       var data = result[0];
-      launch("tel://${data["number"]}");
+      // Converting number to int because if it is
+      // not set then it will automaticly go to cath block
+      int tempNumber = int.parse(data["number"]);
+      launch("tel://$tempNumber");
     }catch(e){
-      print(e);
-      speakOut("Fehler, bitte versuche es erneut");
+      speakOut("Keine Nummer gefunden");
     }
   }
 
   
 
   // Speak out the msg using TTS
-  void speakOut(String msg)async{
+  Future speakOut(String msg)async{
     await tts.setLanguage("de-DE");
-    await tts.speak(msg); 
-    
-    tts.setStartHandler(() {
-      SpeechScreen.isFinishedWithTalking = false;
-    });
-
-    tts.setCompletionHandler(() {
-      SpeechScreen.isFinishedWithTalking = true;
-    });
-
+    await tts.awaitSpeakCompletion(true);
+    await tts.speak(msg);
+    print("Spoke");
+    SpeechScreen.isFinished = true;
   }
+
 
   // +++Data formatting+++
 

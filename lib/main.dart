@@ -27,7 +27,8 @@ void main() => runApp(MaterialApp(
 
 class SpeechScreen extends StatefulWidget {
 
-  static bool isFinishedWithTalking = true;
+  static bool isFinished = true;
+
   
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
@@ -85,10 +86,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
           repeat: true,
           child: FloatingActionButton(
             onPressed: () {
-              if (SpeechScreen.isFinishedWithTalking) {
+              if (SpeechScreen.isFinished) {
                 listen();
               }            
             },
+          
             backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
@@ -138,6 +140,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     );
   }
 
+
   void statusListener(String status) {
     setState(() {
       lastStatus = "$status";
@@ -159,42 +162,29 @@ class _SpeechScreenState extends State<SpeechScreen> {
     });
     setState(() async{
       if(msg != "" && lastStatus == "notListening"){
+        SpeechScreen.isFinished = false;
         print("currentRequestCode: $currentRequestCode");
 
         switch(currentRequestCode){
-          case normalRequest:{
-            List<Map<String, dynamic>> result = await Background().handleResults(msg);
-            if(result != null && msg=="Datenbank anzeigen"){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DbViewer(entries: result,),
-                ));
-            }else if(result != null && msg.contains("info Kennung")){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PersonCard(entries: result,),
-                ));
-            }else if(result == null && msg=="Datenbank anzeigen"){
-              bg.speakOut("Keine Daten vorhanden");
-            }else{
-              bg.speakOut("Das habe ich nicht verstanden");
+          case normalRequest:{ // 100
+            bool performedAction = await Background().handleResults(msg, context);
+            print("ran 100"); 
+            if(!performedAction){
+              bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
             }
-            print("ran 100");
           }
           break;
-          case newEntry:{
+          case newEntry:{ // 101
             currentRequestCode = normalRequest;
             split = bg.splitResult(msg);
             try{
               bg.insert(split[0], int.parse(split[1]));
-            }catch(FormatException){
+            }catch(e){
               bg.speakOut(errorText);
             }
           }
           break;
-          case updateEntry:{
+          case updateEntry:{ // 102
             currentRequestCode = normalRequest;
             split = bg.splitResult(msg);
             try{
@@ -205,15 +195,16 @@ class _SpeechScreenState extends State<SpeechScreen> {
               int success = bg.update(int.parse(split[1]), split[2], split[3]) as int;
               if(success == 1){
                 bg.speakOut("Änderungen erfolgreich übernommen");
+              }else{
+                bg.speakOut(errorText);
               }
-
             }catch(FormatException){
               bg.speakOut(errorText);
             }
-            print("ran 102");
+            
           }
           break;
-          case deleteEntry:{
+          case deleteEntry:{ // 103
             currentRequestCode = normalRequest;
             split = bg.splitResult(msg);
             try{
@@ -223,12 +214,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
             }
           }
           break;
-          case makeCall:{
+          case makeCall:{ // 104
             currentRequestCode = normalRequest;
-            split = bg.splitResult(msg);
-            bg.callID(split[1]);
+            
+            bg.callID(msg);
           }
           break;
+          
         }
 
         switch(msg){
@@ -256,6 +248,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
       }
     });
   }
+
+  
 
   void listen() async {
     if (!_isListening) {

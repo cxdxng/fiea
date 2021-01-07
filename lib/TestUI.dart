@@ -21,10 +21,7 @@ class _TTSState extends State<TTS> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          RaisedButton(
-            onPressed: () => Background().callID("1"),
-            child: Text("Call Marlon"),
-          ),
+          CircularProgressIndicator(),
           Text("Hello word"),
           Image.asset("assets/finalAI.gif")
         ],

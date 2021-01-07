@@ -1,30 +1,48 @@
 import 'package:fiea/BackgroundTasks.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class EditPersonInfo extends StatelessWidget {
-
-  Color darkBackground = Color(0xff1e1e2c);
-  Color blueAccent = Color(0xff33e1ed);
+class EditPersonInfo extends StatefulWidget {
 
   final List<Map<String, dynamic>> entries;
-  List<String> parameters = ["Name", "Geboren", "IQ", "Größe", "Gewicht", "Nummer", "Addresse"];
-  List<String> values;
-  List<TextEditingController> controllerList;
-
-  TextEditingController nameController, birthController, iqController, heightController, weightController, numberController, addressController = TextEditingController();
-  Map data;
-
-  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
-  String nA = "Nicht vorhanden";
 
   EditPersonInfo({Key key, this.entries}) : super(key: key);
 
   @override
+  _EditPersonInfoState createState() => _EditPersonInfoState();
+}
+
+class _EditPersonInfoState extends State<EditPersonInfo> {
+
+  Color darkBackground = Color(0xff1e1e2c);
+  Color blueAccent = Color(0xff33e1ed);
+
+  List<String> parameters = ["Name", "Geboren", "IQ", "Größe (in cm)", "Gewicht (in kg)", "Nummer", "Addresse"];
+  List<String> values;
+  Map data;
+  String nA = "Nicht vorhanden";
+  String tempId,
+    tempName, 
+    tempBirth, 
+    tempFacedata, 
+    tempHeight,
+    tempIQ,
+    tempWeight, 
+    tempNumber,
+    tempAddress;
+  
+  bool unsaved = true;
+
+  @override
+  void initState() {
+    super.initState();
+    setInfos();
+  }
+
+  @override
   Widget build(BuildContext context) {
     //print("From PersonInfo: $entries");
-
-    controllerList = [nameController, birthController, iqController, heightController, weightController, numberController, addressController];
-    setInfos();
+    
     values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata];
     
 
@@ -34,10 +52,15 @@ class EditPersonInfo extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xff2D2D44),
           onPressed: () async {
+            setState(() {
+              unsaved = false;
+              setFabIcon();
+            });
             await Background().manualUpdate(values);
             Navigator.popUntil(context, ModalRoute.withName('/'));
+            Background().speakOut("Änderungen erfolgreich übernommen");
           },
-          child: Icon(Icons.save),
+          child: setFabIcon(),
         ),
         body: Container(
           color: darkBackground,
@@ -51,6 +74,19 @@ class EditPersonInfo extends StatelessWidget {
                 child: Column(
                   children: [
                     checkForFaceData(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: FlatButton.icon(
+                        onPressed: ()async{
+                          String result = await Background().generateFaceData();
+                          setState(() {
+                            tempFacedata = result;
+                          });                          
+                        },
+                        icon: Icon(Icons.edit),
+                        label: Text("Edit",style: TextStyle(fontSize: 25)),
+                      )
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 30),
                       child: Text(
@@ -81,13 +117,15 @@ class EditPersonInfo extends StatelessWidget {
       ),
     );
   }
+
   String makeTitle() {
-    data = entries[0];
+    data = widget.entries[0];
     tempName = data["displayName"];
     return tempName;
   }
+
   void setInfos(){
-    data = entries[0];
+    data = widget.entries[0];
     tempId = data["_id"].toString();
     tempName = data["name"].toString();
     tempBirth = data["birth"].toString();
@@ -97,10 +135,11 @@ class EditPersonInfo extends StatelessWidget {
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
     tempFacedata = data["facedata"].toString();
+    print("ran setInfos");
   }
 
   Widget makeSubTitle() {
-    data = entries[0];
+    data = widget.entries[0];
     var list = [];
 
     data.forEach((key, value) {list.add(value);});
@@ -143,9 +182,6 @@ class EditPersonInfo extends StatelessWidget {
   }
 
   Widget checkForFaceData() {
-    data = entries[0];
-    tempName = data["name"];
-    tempFacedata = data["facedata"];
 
     if (tempFacedata != nA) {
       var image = Background().decodeBase64(tempFacedata);
@@ -165,6 +201,14 @@ class EditPersonInfo extends StatelessWidget {
           ),
         ),
       );
+    }
+  }
+
+  Widget setFabIcon(){
+    if(unsaved){
+      return Icon(Icons.save);
+    }else{
+      return CircularProgressIndicator();
     }
   }
 }

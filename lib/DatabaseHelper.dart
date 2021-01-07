@@ -118,13 +118,17 @@ class DatabaseHelper {
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 
-  void deleteTable() async{
+  Future<bool> deleteTable() async{
 
-    Database db = await instance.database;
-    await db.execute("DROP TABLE IF EXISTS $table");
-    print("Dropped table successfully");
-    await _onCreate(db, _databaseVersion);
-    print("Created new Table: $table");
-
+    try{
+      Database db = await instance.database;
+      await db.execute("DROP TABLE IF EXISTS $table");
+      print("Dropped table successfully");
+      await _onCreate(db, _databaseVersion);
+      print("Created new Table: $table");
+      return true;
+    }catch(e){
+      return false;
+    }
   }
 }
