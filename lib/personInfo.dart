@@ -16,18 +16,14 @@ class PersonCard extends StatelessWidget {
 
   PersonCard({Key key, this.entries}) : super(key: key);
 
-
-
   @override
   Widget build(BuildContext context) {
-    //print("From PersonInfo: $entries");
 
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xff2D2D44),
           onPressed: () {
-            //Navigator.pop(context);
             changeRoute(context);
           },
           child: Icon(Icons.edit),
@@ -37,7 +33,6 @@ class PersonCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Card(
-              //color: Color(0xff2D2D44),
               color: Colors.blueAccent,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
@@ -105,10 +100,8 @@ class PersonCard extends StatelessWidget {
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
 
-    var personInfo =
-        "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße: $tempHeight\nGewicht: $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress";
-
-    return personInfo;
+    
+    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße: $tempHeight\nGewicht: $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
   }
 
   Widget checkForFaceData() {
@@ -140,7 +133,6 @@ class PersonCard extends StatelessWidget {
   void changeRoute(BuildContext context){
 
     Map<String, dynamic> content = {
-      //"_id": tempId,
       "name": tempName,
       "birth": tempBirth,
       "iq": tempIQ,

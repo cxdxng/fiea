@@ -1,6 +1,5 @@
 import 'package:fiea/BackgroundTasks.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class EditPersonInfo extends StatefulWidget {
 
@@ -41,12 +40,9 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
 
   @override
   Widget build(BuildContext context) {
-    //print("From PersonInfo: $entries");
     
     values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata];
     
-
-
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
