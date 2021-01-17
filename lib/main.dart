@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
