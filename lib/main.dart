@@ -112,7 +112,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/finalAI.gif"),
+              image: AssetImage("assets/lol.gif"),
             )
           ),
           child: Column(
@@ -146,10 +146,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   ),
                 ),
               ),
-              RaisedButton(
+              /* RaisedButton(
                 onPressed: (){bg.handleNormalResult("Datenbank anzeigen", context);},
                 child: Text("Datenbank Anzeigen"),
-              ),
+              ), */
               
             ],
           ),
