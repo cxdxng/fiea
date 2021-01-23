@@ -41,6 +41,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
   stt.SpeechToText _speech;
   var bg = Background();
 
+  TextEditingController controller = TextEditingController();
+
   // Create necessary Variables for STT
   var _isListening = false;
   var _stateBusy = "F.I.E.A hört zu";
@@ -144,6 +146,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   ),
                 ),
               ),
+              RaisedButton(
+                onPressed: (){bg.handleNormalResult("Datenbank anzeigen", context);},
+                child: Text("Datenbank Anzeigen"),
+              ),
+              
             ],
           ),
         ),
@@ -177,9 +184,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
     setState(() async{
       // Check if msg is empty and if STT is ready again
       if(msg != "" && _sttState == _stateReady){
+        print("lul");
         // Set isFinished to false so that there can no longer be
         // speech input from the user untill result has been fully processed
         SpeechScreen.isFinished = false;
+        
+        
         // Check the requestCode
         switch(currentRequestCode){
           case normalRequest:{ // 100
@@ -187,9 +197,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
             bool performedAction = await Background().handleNormalResult(msg, context);
             // If handleNormalResult returns null then the action
             // is not known and so TTS reports an error to the user
-            if(!performedAction){
-              bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
-            }
+            
           }
           break;
           case newEntry:{ // 101
@@ -261,6 +269,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
           break;
         }
 
+
+
         // Check the msg for spectific actions
         switch(msg){
           case "neuer Eintrag":{
@@ -291,6 +301,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
             currentRequestCode = makeCall;
           }
         }
+        
+        
+        
 
         // Now at recall of resultListener, the requestcode check at teh beginning
         // will trigger and run the correct method linked to the request codes

@@ -2,51 +2,79 @@ import 'dart:math';
 
 import 'package:fiea/BackgroundTasks.dart';
 class Chatbot{
-  
-  List possibleRequests = ["wie geht es dir", "wie viel Uhr ist es", "danke", "was kannst du"];
+   
+  List possibleRequests = ["wie geht es dir", "danke", "was kannst du", "wie viel Uhr ist es"];
 
-  List answers1 = [
+  List howAreU = [
     "Mir geht es gut\n wie kann ich dir helfen?",
     "Naja, ich bin eine Maschine, also kann ich dir nicht sagen wie es mir geht",
     "Mir geht es hervorragend!",
     "Steht in der Gebrauchsanweisung, haha",
     "Alles paletti!"
     ];
-  List answers2 = [
+  List thanks = [
     "Immer gern!",
     "Dafür nicht!",
-    "Ich bin immer froh, wenn ich helfen kann"
+    "Ich bin immer froh, wenn ich helfen kann",
     "Kein problem",
   ];
-  List answers3 = [
+  List whatCanYouDo = [
     "Ich kann vieles\n Am besten kann ich dir jedoch bei der Erfassung menschlicher Daten helfen!",
     "Das weiß nur der, von dem ich programmiert wurde",
     "Tja\n\n das weiß ich selbst noch nicht ganz genau\n aber mit jedem tag werde ich verbessert\n zumindest so lange Marlon noch genug Kaffee hat"
   ];
-  List answers4 = [];
-  List answers5 = [];
-  List answers6 = [];
+  
+  
 
   Background bg = Background();
 
-  void analyseMsg(String msg){
 
-    for (var item in possibleRequests) {
-      print(item);
-      if (item == msg) {
-        createResponse(msg);
+  bool createResponse(String msg){
+    print(msg);
+    
+    for (var i = 0; i < possibleRequests.length; i++) {
+      if (msg == possibleRequests[i]) {
+        switch (i){
+          case 0:{
+            print("0");
+            bg.speakOut(getRandomAnswer(howAreU));
+            return true;
+          }
+          break;
+          case 1:{
+            print("1");
+            bg.speakOut(getRandomAnswer(thanks));
+            return true;
+          }
+          break;
+          case 2:{
+            print("2");
+            bg.speakOut(getRandomAnswer(whatCanYouDo));
+            return true;
+          }
+          break;
+          case 3:{
+            var now = new DateTime.now();
+            //print();
+            bg.speakOut("Es ist ${now.hour}:${now.minute}");
+            return true;
+          }
+          break;
+          default:{
+            return false;
+          }
+        }
       }
     }
+    return false;
   }
 
-  void createResponse(String msg){
-    var lol = getRandomAnswer(answers3);
-    bg.speakOut(lol);
+    //var randomAnswer = getRandomAnswer(answers3);
+    //bg.speakOut(randomAnswer);
   }
 
   String getRandomAnswer(List answerList) {
     Random random = Random();
     var answerIndex = random.nextInt(answerList.length);
-    return answerList[2];
+    return answerList[answerIndex];
   }
-}
