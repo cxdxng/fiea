@@ -73,8 +73,6 @@ class DatabaseHelper {
     return await db.insert(table, row);
   }
 
-
-
   // All of the rows are returned as a list of maps, where each map is
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
