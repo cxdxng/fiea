@@ -91,6 +91,12 @@ class Background{
         speakOut(errorText);
       }
       return true;
+    }else if(msg.contains("suche ")){
+      try{
+        var data = queryByName(split[1]);
+      }catch(e){
+        speakOut(errorText);
+      }
     }
     // If non of the methods above fired, return false
     return false;
@@ -212,6 +218,11 @@ class Background{
       return singleRow;
     }
     return null;
+  }
+
+  Future<List<Map<String, dynamic>>> queryByName(String name) async{
+    var temp = await dbHelper.queryName(name);
+    return temp;
   }
 
   // Delete an Entry from the Database

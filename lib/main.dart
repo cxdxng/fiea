@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:fiea/Chatbot.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
 import 'package:fiea/TestUI.dart';
@@ -99,7 +100,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
           repeat: true,
           child: FloatingActionButton(
             onPressed: () {
+              // Check if TTS has finished speaking
               if (SpeechScreen.isFinished) {
+                // If so then listen to the user
                 listen();
               }            
             },
@@ -112,7 +115,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/lol.gif"),
+              image: AssetImage("assets/finalAI.gif"),
             )
           ),
           child: Column(
@@ -184,7 +187,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
     setState(() async{
       // Check if msg is empty and if STT is ready again
       if(msg != "" && _sttState == _stateReady){
-        print("lul");
         // Set isFinished to false so that there can no longer be
         // speech input from the user untill result has been fully processed
         SpeechScreen.isFinished = false;
@@ -195,8 +197,18 @@ class _SpeechScreenState extends State<SpeechScreen> {
           case normalRequest:{ // 100
             // Execute handleNormalResult and pass the msg
             bool performedAction = await Background().handleNormalResult(msg, context);
-            // If handleNormalResult returns null then the action
-            // is not known and so TTS reports an error to the user
+            // If handleNormalResult returns false then the action
+            // is not known and so the result will be passed to the Chatbot
+            if (!performedAction) {
+              bool validMsg = Chatbot().createResponse(msg);
+              if (!validMsg) {
+                bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
+              }
+            }
+            // If Chatbot returns false aswell, the action is not known
+            // and so an error message is said by the TTS
+
+            
             
           }
           break;

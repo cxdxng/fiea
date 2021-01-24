@@ -11,7 +11,7 @@ class Chatbot{
     "Mir geht es hervorragend!",
     "Steht in der Gebrauchsanweisung, haha",
     "Alles paletti!"
-    ];
+  ];
   List thanks = [
     "Immer gern!",
     "Dafür nicht!",
@@ -24,38 +24,30 @@ class Chatbot{
     "Tja\n\n das weiß ich selbst noch nicht ganz genau\n aber mit jedem tag werde ich verbessert\n zumindest so lange Marlon noch genug Kaffee hat"
   ];
   
-  
-
   Background bg = Background();
 
-
   bool createResponse(String msg){
-    print(msg);
     
     for (var i = 0; i < possibleRequests.length; i++) {
       if (msg == possibleRequests[i]) {
         switch (i){
           case 0:{
-            print("0");
             bg.speakOut(getRandomAnswer(howAreU));
             return true;
           }
           break;
           case 1:{
-            print("1");
             bg.speakOut(getRandomAnswer(thanks));
             return true;
           }
           break;
           case 2:{
-            print("2");
             bg.speakOut(getRandomAnswer(whatCanYouDo));
             return true;
           }
           break;
           case 3:{
             var now = new DateTime.now();
-            //print();
             bg.speakOut("Es ist ${now.hour}:${now.minute}");
             return true;
           }
@@ -68,13 +60,11 @@ class Chatbot{
     }
     return false;
   }
-
-    //var randomAnswer = getRandomAnswer(answers3);
-    //bg.speakOut(randomAnswer);
-  }
-
   String getRandomAnswer(List answerList) {
     Random random = Random();
     var answerIndex = random.nextInt(answerList.length);
     return answerList[answerIndex];
   }
+}
+
+  
