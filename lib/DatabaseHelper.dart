@@ -82,13 +82,19 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
     Database db = await instance.database;
-    var data = db.rawQuery("SELECT * FROM $table WHERE $columnId='$id'");
+    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT * FROM $table WHERE $columnId='$id'");
     return data;
   }
 
-  Future<List<Map<String, dynamic>>> queryName(String name) async{
+  Future<List<Map<String, dynamic>>> queryByName(String name) async{
     Database db = await instance.database;
-    var data = db.rawQuery("SELECT * FROM $table WHERE $columnName='$name'");
+    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT * FROM $table WHERE $columnName='$name'");
+    return data;
+  }
+
+  Future<List<Map<String,dynamic>>> queryName() async{
+    Database db = await instance.database;
+    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT $columnName FROM $table WHERE $columnId='1'");
     return data;
   }
   // Assuming here that the id column in the map is set. The other

@@ -11,9 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
 
-
-class Background{
-
+class Background {
 
   /*
   +++COMMANDS+++
@@ -26,7 +24,7 @@ class Background{
   // Create necessary Objects
   final dbHelper = DatabaseHelper.instance;
   FlutterTts tts = FlutterTts();
-
+  
   // Create necessary variables
   String base64string;
   String nA = "Nicht vorhanden";
@@ -37,12 +35,12 @@ class Background{
   // Process result from STT and run the correct function for the command
   Future<bool> handleNormalResult(String msg, BuildContext context)async {
     // Split the msg at spaces
-    var split = splitResult(msg);
+    List<String> split = splitResult(msg);
     // Check msg and run corresponding method
     if(msg.contains("info Kennung")){
       try{
         // Pass msg to method
-        var singleData = await querySingleData(int.parse(split[2]));
+        List<Map<String, dynamic>>  singleData = await querySingleData(int.parse(split[2]));
         // Check for success
         if(singleData != null){
           speakOut("Daten von Kennung ${split[2]}\nBitteschön");
@@ -70,7 +68,7 @@ class Background{
     }else if(msg == "Datenbank anzeigen"){
 
       // Get data from Database
-      var cardInfo = await queryAllData();
+      List<Map<String, dynamic>> cardInfo = await queryAllData();
 
       // Check for success
       if(cardInfo != null){
@@ -91,9 +89,14 @@ class Background{
         speakOut(errorText);
       }
       return true;
-    }else if(msg.contains("suche ")){
+    }else if(msg.contains(" suchen")){
+      
       try{
-        var data = queryByName(split[1]);
+        List<Map<String, dynamic>> cardInfo = await queryByName(split[0]);
+        if (cardInfo != null) {
+          speakOut("Alle Ergebnisse für: ${split[0]}");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DbViewer(entries: cardInfo)));
+        }
       }catch(e){
         speakOut(errorText);
       }
@@ -201,7 +204,6 @@ class Background{
   Future<List<Map<String, dynamic>>> queryAllData() async {
     // Get data from table
     List<Map<String, dynamic>> allRows = await dbHelper.queryAllRows();
-
     // Check for success
     if(allRows.isNotEmpty){
       return allRows;
@@ -212,7 +214,7 @@ class Background{
   // Get single entry from Database 
   Future<List<Map<String, dynamic>>> querySingleData(int id) async{
     // Get data from table
-    var singleRow = await dbHelper.queryOneRow(id);
+    List<Map<String, dynamic>> singleRow = await dbHelper.queryOneRow(id);
     // Check for success
     if(singleRow.isNotEmpty){
       return singleRow;
@@ -220,9 +222,15 @@ class Background{
     return null;
   }
 
+  // Get all Data from the Database
   Future<List<Map<String, dynamic>>> queryByName(String name) async{
-    var temp = await dbHelper.queryName(name);
-    return temp;
+    // Get data from table
+    List<Map<String, dynamic>> allRows = await dbHelper.queryByName(name);
+    // Check for success
+    if(allRows.isNotEmpty){
+      return allRows;
+    }
+    return null;
   }
 
   // Delete an Entry from the Database
@@ -272,9 +280,11 @@ class Background{
     // speak the msg
     await tts.setLanguage("de-DE");
     await tts.awaitSpeakCompletion(true);
+    SpeechScreen.emitter.emit("SPEAKING", null, "");
     await tts.speak(msg);
     // Set isFinished to true when tts has finished speaking
-    SpeechScreen.isFinished = true;
+    SpeechScreen.emitter.emit("Finished", null, "");
+    
   }
 
 
@@ -290,7 +300,7 @@ class Background{
   // Encode an image into a Base64 encoded String
   Future<String> encodeBase64(File imageFile) async{
     Uint8List bytes = await imageFile.readAsBytes();
-    var encoded = base64.encode(bytes);
+    String encoded = base64.encode(bytes);
     return encoded;
   }
   

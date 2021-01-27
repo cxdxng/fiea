@@ -18,7 +18,7 @@ class PersonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    // Create the UI
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(

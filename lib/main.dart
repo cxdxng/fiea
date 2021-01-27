@@ -1,12 +1,15 @@
 import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:eventify/eventify.dart';
 import 'package:fiea/Chatbot.dart';
+import 'package:fiea/DatabaseHelper.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
@@ -27,11 +30,10 @@ void main() => runApp(MaterialApp(
 
 class SpeechScreen extends StatefulWidget {
 
-  // Create local bool that stores if TTS 
-  // is finished talking or not
-  static bool isFinished = true;
-
   
+  // Create EventEmitter to change speech animation when TTS is finished
+  static EventEmitter emitter = new EventEmitter();
+
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
 }
@@ -40,21 +42,20 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   // Create necessary Objects
   stt.SpeechToText _speech;
-  var bg = Background();
+  Background bg = Background();
 
-  TextEditingController controller = TextEditingController();
 
   // Create necessary Variables for STT
-  var _isListening = false;
-  var _stateBusy = "F.I.E.A hört zu";
-  var _stateReady = "F.I.E.A Bereit";
-  var _sttState = "F.I.E.A Bereit";
+  bool _isListening = false;
+  String _stateBusy = "F.I.E.A hört zu";
+  String _stateReady = "F.I.E.A Bereit";
+  String _sttState = "F.I.E.A Bereit";
 
   // Ui Text
-  var _text = "Sag etwas...";
+  String _text = "Sag etwas...";
 
   // text for errors
-  var errorText = "Fehler, bitte versuche es erneut";
+  String errorText = "Fehler, bitte versuche es erneut";
   List<String> split;
 
   //Create Requestcodes for result of STT
@@ -73,20 +74,64 @@ class _SpeechScreenState extends State<SpeechScreen> {
   104 = make call
    */
 
+  bool isFinished = true;
+
   // Create Color variables for UI theme of the App
-  var blueAccent = Color(0xff33e1ed);
-  var darkBackground = Color(0xff1e1e2c);
   Color fabColor = Color(0xff080e2c);
 
-  //Create initState to define STT Object
+  //Method to check if it it the first time the app is launched
+  Future checkFirstSeen() async {
+    // Look for a bool in the shared prefrences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seen') ?? false);
+    // If it is true it means the app has already been launched once and so
+    // the tts greets the user with their name
+    if (_seen) {
+      // Get data from Database
+      var dataList = await DatabaseHelper.instance.queryName();
+      // Extract username and speak out the greeting
+      String username = dataList[0]["name"];
+      bg.speakOut("Wilkommen $username\nWie kann ich dir helfen");
+    }
+    // However if it is the first launch, the user will get a 
+    // little introduction and gets prompted to make a new entry
+    // with his data
+    else {
+      // Change the bool to true so at next launch this
+      // will not get executed anymore
+      prefs.setBool('seen', true);
+      // Speakout the introducion
+      Background().speakOut("Hallo\n und wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der Datenverwaltung von Menschen zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nSage dazu einfach 'neuer Eintrag'\n und nenne mir danach deinen Namen und dein Geburtsjahr!");
+    }
+  }
+
+  // Create initState to define STT Object
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
+    _speech = stt.SpeechToText(); 
+    // Check for first launch
+    checkFirstSeen();
   }
   
   @override
   Widget build(BuildContext context) {
+    // Set isFinished to true once the tts has finished speaking
+    // so that the animation can be changed and the user is able to
+    // input words again
+    SpeechScreen.emitter.on("Finished", null, (ev, context) {
+      setState(() {
+        isFinished = true;
+      });
+    });
+    // Set isFinished to false when tts is speaking so that there can no longer be
+    // speech input from the user untill result has been fully processed
+    SpeechScreen.emitter.on("SPEAKING", null, (ev, context) {
+      setState(() {
+        isFinished = false;
+      });
+    });
+    // Create the UI
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -101,12 +146,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
           child: FloatingActionButton(
             onPressed: () {
               // Check if TTS has finished speaking
-              if (SpeechScreen.isFinished) {
+              if (isFinished) {
                 // If so then listen to the user
                 listen();
               }            
             },
-          
             backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
@@ -115,7 +159,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/finalAI.gif"),
+              // Set animation depending on isFinished value
+              image: isFinished ? AssetImage("assets/aiIdle.gif"):AssetImage("assets/aiTalking.gif"),
             )
           ),
           child: Column(
@@ -143,7 +188,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
                     style: TextStyle(
                       fontSize: 28,
                       color: Colors.white,
-                      //fontWeight: FontWeight.bold,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -177,7 +221,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   void resultListener(SpeechRecognitionResult result) {
     // Get msg from resultListener
-    var msg = result.recognizedWords;
+    String msg = result.recognizedWords;
     
     // Set the msg to _text to display it to the user
     setState(() {
@@ -186,11 +230,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // Handle results
     setState(() async{
       // Check if msg is empty and if STT is ready again
-      if(msg != "" && _sttState == _stateReady){
-        // Set isFinished to false so that there can no longer be
-        // speech input from the user untill result has been fully processed
-        SpeechScreen.isFinished = false;
-        
+      if(msg != "" && _sttState == _stateReady){    
         
         // Check the requestCode
         switch(currentRequestCode){
@@ -200,15 +240,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
             // If handleNormalResult returns false then the action
             // is not known and so the result will be passed to the Chatbot
             if (!performedAction) {
-              bool validMsg = Chatbot().createResponse(msg);
+              bool validMsg = await Chatbot().createResponse(msg);
+              // If Chatbot returns false aswell, the action is not known
+              // and so an error message is said by the TTS
               if (!validMsg) {
                 bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
               }
             }
-            // If Chatbot returns false aswell, the action is not known
-            // and so an error message is said by the TTS
-
-            
             
           }
           break;
@@ -242,6 +280,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               // Let the user know whether action was successful or not
               if(success == 1){
                 bg.speakOut("Änderungen erfolgreich übernommen");
+                
               }else{
                 bg.speakOut(errorText);
               }
@@ -280,9 +319,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           break;
         }
-
-
-
+        
         // Check the msg for spectific actions
         switch(msg){
           case "neuer Eintrag":{
@@ -313,21 +350,21 @@ class _SpeechScreenState extends State<SpeechScreen> {
             currentRequestCode = makeCall;
           }
         }
-        
-        
-        
-
         // Now at recall of resultListener, the requestcode check at teh beginning
         // will trigger and run the correct method linked to the request codes
       }
     });
   }
 
+  void updateBoolValue()async{
+    
+  }
+
   // Listen to the user
   void listen() async {
     if (!_isListening) {
       // Initialize STT
-      var available = await _speech.initialize(
+      bool available = await _speech.initialize(
         // Set status and error Listener
         onStatus: statusListener,
         onError: (val) => print("onError: $val"),

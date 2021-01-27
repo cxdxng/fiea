@@ -1,9 +1,7 @@
-
 import 'package:fiea/BackgroundTasks.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-
 
 class DbViewer extends StatelessWidget {
 
@@ -22,7 +20,7 @@ class DbViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    // Create the UI
     return SafeArea(
       child: Scaffold(
         backgroundColor: darkBackground,    

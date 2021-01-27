@@ -28,7 +28,7 @@ class Chatbot{
 
   bool createResponse(String msg){
     
-    for (var i = 0; i < possibleRequests.length; i++) {
+    for (int i = 0; i < possibleRequests.length; i++) {
       if (msg == possibleRequests[i]) {
         switch (i){
           case 0:{
@@ -47,7 +47,7 @@ class Chatbot{
           }
           break;
           case 3:{
-            var now = new DateTime.now();
+            DateTime now = new DateTime.now();
             bg.speakOut("Es ist ${now.hour}:${now.minute}");
             return true;
           }
@@ -62,7 +62,7 @@ class Chatbot{
   }
   String getRandomAnswer(List answerList) {
     Random random = Random();
-    var answerIndex = random.nextInt(answerList.length);
+    int answerIndex = random.nextInt(answerList.length);
     return answerList[answerIndex];
   }
 }

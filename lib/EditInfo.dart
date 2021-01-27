@@ -45,7 +45,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
   Widget build(BuildContext context) {
     // Add the parameter Strings to the List
     values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata];
-    
+    // Create the UI
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -164,7 +164,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
     // Store information in Map for later use
     data = widget.entries[0];
     // Create a List and add data into it for use in Listview builder
-    var list = [];
+    List<dynamic> list = [];
     data.forEach((key, value) {list.add(value);});
     
     // Create a Listview that contains all necessary textfields
