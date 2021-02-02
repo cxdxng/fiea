@@ -30,7 +30,6 @@ void main() => runApp(MaterialApp(
 
 class SpeechScreen extends StatefulWidget {
 
-  
   // Create EventEmitter to change speech animation when TTS is finished
   static EventEmitter emitter = new EventEmitter();
 
@@ -43,7 +42,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   // Create necessary Objects
   stt.SpeechToText _speech;
   Background bg = Background();
-
 
   // Create necessary Variables for STT
   bool _isListening = false;
