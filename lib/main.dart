@@ -80,7 +80,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Color fabColor = Color(0xff080e2c);
 
   //Method to check if it it the first time the app is launched
-  Future checkFirstSeen() async {
+  void checkFirstSeen() async {
     // Look for a bool in the shared prefrences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool _seen = (prefs.getBool('seen') ?? false);
@@ -101,7 +101,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       // will not get executed anymore
       prefs.setBool('seen', true);
       // Speakout the introducion
-      Background().speakOut("Hallo\n und wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der Datenverwaltung von Menschen zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nSage dazu einfach 'neuer Eintrag'\n und nenne mir danach deinen Namen und dein Geburtsjahr!");
+      Background().speakOut("Hallo\n und wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nSage dazu einfach 'neuer Eintrag'\n und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
     }
   }
 
@@ -193,11 +193,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   ),
                 ),
               ),
-              /* RaisedButton(
-                onPressed: (){bg.handleNormalResult("Datenbank anzeigen", context);},
-                child: Text("Datenbank Anzeigen"),
-              ), */
-              
             ],
           ),
         ),
@@ -243,9 +238,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               bool validMsg = await Chatbot().createResponse(msg);
               // If Chatbot returns false aswell, the action is not known
               // and so an error message is said by the TTS
-              if (!validMsg) {
-                bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
-              }
+              
             }
             
           }

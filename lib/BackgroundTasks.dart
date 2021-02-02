@@ -24,6 +24,8 @@ class Background {
   // Create necessary Objects
   final dbHelper = DatabaseHelper.instance;
   FlutterTts tts = FlutterTts();
+
+  
   
   // Create necessary variables
   String base64string;
