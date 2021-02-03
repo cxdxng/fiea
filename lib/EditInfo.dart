@@ -59,7 +59,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
             await Background().manualUpdate(values);
             // Go back to homescreeen
             Navigator.popUntil(context, ModalRoute.withName('/'));
-            Background().speakOut("Änderungen erfolgreich übernommen");
+            
           },
           child: setFabIcon(),
         ),

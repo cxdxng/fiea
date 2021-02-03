@@ -59,20 +59,16 @@ class PersonCard extends StatelessWidget {
                         ),
                         Expanded(
                           child: SingleChildScrollView(
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
-                                  child: Text(
-                                    makeSubTitle(),
-                                    style: TextStyle(
-                                      fontSize: 30,
-                                      height: 2,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
+                              child: Text(
+                                makeSubTitle(),
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  height: 2,
+                                  color: Colors.white,
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -122,7 +118,7 @@ class PersonCard extends StatelessWidget {
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
     // Return user info as correctly formatted String
-    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße: $tempHeight\nGewicht: $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
+    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
   }
 
   Widget checkForFaceData() {

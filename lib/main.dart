@@ -31,7 +31,7 @@ void main() => runApp(MaterialApp(
 class SpeechScreen extends StatefulWidget {
 
   // Create EventEmitter to change speech animation when TTS is finished
-  static EventEmitter emitter = new EventEmitter();
+  static EventEmitter ttsEmitter = new EventEmitter();
 
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
@@ -49,11 +49,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
   String _stateReady = "F.I.E.A Bereit";
   String _sttState = "F.I.E.A Bereit";
 
-  // Ui Text
+  // Ui prediciton text
   String _text = "Sag etwas...";
 
-  // text for errors
+  // Text for errors
   String errorText = "Fehler, bitte versuche es erneut";
+  // Create List of Strings to store the message that has been splitted
   List<String> split;
 
   //Create Requestcodes for result of STT
@@ -63,14 +64,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   static const int updateEntry = 102;
   static const int deleteEntry = 103;
   static const int makeCall = 104;
-
-  /* Request codes
-  100 = normal Request
-  101 = new entry
-  102 = update entry
-  103 = delete entry
-  104 = make call
-   */
 
   bool isFinished = true;
 
@@ -98,8 +91,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
       // Change the bool to true so at next launch this
       // will not get executed anymore
       prefs.setBool('seen', true);
+      // Set currentRequestCode to 101 so that the user does not
+      // need to tell the assistant an action first
+      currentRequestCode = 101;
       // Speakout the introducion
-      Background().speakOut("Hallo\n und wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nSage dazu einfach 'neuer Eintrag'\n und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
+      Background().speakOut("Hallo\n und Wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nDrücke dazu einfach den Mikrofon button und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
     }
   }
 
@@ -114,17 +110,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
   
   @override
   Widget build(BuildContext context) {
-    // Set isFinished to true once the tts has finished speaking
-    // so that the animation can be changed and the user is able to
-    // input words again
-    SpeechScreen.emitter.on("Finished", null, (ev, context) {
+    // Create listener to check if tts is speaking or not
+    // and change isFinished accordingly
+    SpeechScreen.ttsEmitter.on("Finished", null, (ev, context) {
       setState(() {
         isFinished = true;
       });
     });
-    // Set isFinished to false when tts is speaking so that there can no longer be
-    // speech input from the user untill result has been fully processed
-    SpeechScreen.emitter.on("SPEAKING", null, (ev, context) {
+    SpeechScreen.ttsEmitter.on("SPEAKING", null, (ev, context) {
       setState(() {
         isFinished = false;
       });
@@ -178,7 +171,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 ),
               ),
               SingleChildScrollView(
-                reverse: true,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 30, 20, 150),
                   child: Text(
@@ -215,7 +207,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void resultListener(SpeechRecognitionResult result) {
     // Get msg from resultListener
     String msg = result.recognizedWords;
-    
     // Set the msg to _text to display it to the user
     setState(() {
       _text = msg;
@@ -223,22 +214,56 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // Handle results
     setState(() async{
       // Check if msg is empty and if STT is ready again
-      if(msg != "" && _sttState == _stateReady){    
-        
+      if(msg != "" && _sttState == _stateReady){        
         // Check the requestCode
         switch(currentRequestCode){
           case normalRequest:{ // 100
-            // Execute handleNormalResult and pass the msg
-            bool performedAction = await Background().handleNormalResult(msg, context);
-            // If handleNormalResult returns false then the action
-            // is not known and so the result will be passed to the Chatbot
-            if (!performedAction) {
-              bool validMsg = await Chatbot().createResponse(msg);
-              // If Chatbot returns false aswell, the action is not known
-              // and so an error message is said by the TTS
-              
+
+            // Check the msg for spectific actions
+            switch(msg){
+              case "neuer Eintrag":{
+                // Let the user know what he needs to say
+                bg.speakOut("Name und Jahr bitte");
+                //change the current request code to the necessary one
+                currentRequestCode = newEntry;   
+                
+              }
+              break;
+              case "Eintrag updaten":{
+                // Let the user know what he needs to say
+                bg.speakOut("Kennung, Attribut und Wert bitte");
+                //change the current request code to the necessary one
+                currentRequestCode = updateEntry;
+              }
+              break;
+              case "Eintrag löschen":{
+                // Let the user know what he needs to say
+                bg.speakOut("Kennung bitte");
+                //change the current request code to the necessary one
+                currentRequestCode = deleteEntry;     
+                  
+              }
+              break;
+              case "Anruf tätigen":{
+                // Let the user know what he needs to say
+                bg.speakOut("Welche Kennung möchtest du anrufen?");
+                // Change the current request code to the necessary one
+                currentRequestCode = makeCall;
+              }
+              break;
+              default:{
+                // Execute handleNormalResult and pass the msg
+                bool performedAction = await Background().handleNormalResult(msg, context);
+                // If handleNormalResult returns false then the action
+                // is not known and so the result will be passed to the Chatbot
+                if (!performedAction) {
+                  bool valid = await Chatbot().createResponse(msg);
+                  if(!valid){
+                    bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
+                  }
+                }
+              }
             }
-            
           }
           break;
           case newEntry:{ // 101
@@ -267,12 +292,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
               // of number formatting from STT you need to say
               // "Kennung" before the id because otherwise
               // the stt returns the number in words
-              int success = bg.update(int.parse(split[1]), split[2], split[3]) as int;
+              int success = await bg.update(int.parse(split[1]), split[2], split[3]);
               // Let the user know whether action was successful or not
-              if(success == 1){
-                bg.speakOut("Änderungen erfolgreich übernommen");
-                
-              }else{
+              if(success != 1){
                 bg.speakOut(errorText);
               }
             }catch(FormatException){
@@ -303,44 +325,18 @@ class _SpeechScreenState extends State<SpeechScreen> {
             split = bg.splitResult(msg);
             // Try executing the method in BackgroundTask and catching error if one occurs
             try{
-              bg.callID(msg);
+              //bg.speakOut("Okay");
+              bg.callID(split[1]);
             }catch(Exeption){
               bg.speakOut(errorText);
             }
           }
           break;
         }
+
         
-        // Check the msg for spectific actions
-        switch(msg){
-          case "neuer Eintrag":{
-            // Let the user know what he needs to say
-            bg.speakOut("Name und Jahr bitte");
-            //change the current request code to the necessary one
-            currentRequestCode = newEntry;   
-          }
-          break;
-          case "Eintrag updaten":{
-            // Let the user know what he needs to say
-            bg.speakOut("Kennung, Attribut und Wert bitte");
-            //change the current request code to the necessary one
-            currentRequestCode = updateEntry;
-          }
-          break;
-          case "Eintrag löschen":{
-            // Let the user know what he needs to say
-            bg.speakOut("Kennung bitte");
-            //change the current request code to the necessary one
-            currentRequestCode = deleteEntry;          
-          }
-          break;
-          case "anruf tätigen":{
-            // Let the user know what he needs to say
-            bg.speakOut("Welche Kennung möchten Sie anrufen?");
-            //change the current request code to the necessary one
-            currentRequestCode = makeCall;
-          }
-        }
+        
+        
         // Now at recall of resultListener, the requestcode check at teh beginning
         // will trigger and run the correct method linked to the request codes
       }

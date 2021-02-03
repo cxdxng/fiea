@@ -195,9 +195,7 @@ class Background {
     // Pass data to method
     int success = await dbHelper.update(row);
     // Check for success
-    if(success == 1){
-      speakOut("Änderungen erfolgreich übernommen");
-    }else{
+    if(success != 1){
       speakOut(errorText);
     }
   }
@@ -269,10 +267,11 @@ class Background {
       Map<String, dynamic> data = result[0];
       // Converting number to int because if no number is set
       // it will automaticly go to catch block and throw an error
-      int tempNumber = int.parse(data["number"]);
-      launch("tel://$tempNumber");
+      int.parse(data["number"]);
+      speakOut("Okay");
+      launch("tel://${data["number"]}");
     }catch(e){
-      speakOut("Keine Nummer gefunden");
+      speakOut("Keine Nummer gefunden oder falsches format vorhanden");
     }
   }
 
@@ -282,10 +281,10 @@ class Background {
     // speak the msg
     await tts.setLanguage("de-DE");
     await tts.awaitSpeakCompletion(true);
-    SpeechScreen.emitter.emit("SPEAKING", null, "");
+    SpeechScreen.ttsEmitter.emit("SPEAKING", null, "");
     await tts.speak(msg);
     // Set isFinished to true when tts has finished speaking
-    SpeechScreen.emitter.emit("Finished", null, "");
+    SpeechScreen.ttsEmitter.emit("Finished", null, "");
     
   }
 

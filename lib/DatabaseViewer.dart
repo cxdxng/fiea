@@ -41,7 +41,6 @@ class DbViewer extends StatelessWidget {
                       splashColor: Colors.white,
                       onTap: (){
                         changeRoute(context, index);
-                        print(index);
                       },
                       child: Container(
                         width: 100,
