@@ -18,7 +18,7 @@ import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
 
-  // Declare routes for changing Screens
+  // Declare routes for changing screens
   initialRoute: '/',
   routes: {
     '/': (context) => SpeechScreen(),
@@ -51,7 +51,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   String _stateReady = "F.I.E.A Bereit";
   String _sttState = "F.I.E.A Bereit";
 
-  // Ui prediciton text
+  // UI prediciton text
   String _text = "Sag etwas...";
 
   // Text for errors
@@ -72,13 +72,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
   // Create Color variables for UI theme of the App
   Color fabColor = Color(0xff080e2c);
 
-  //Method to check if it it the first time the app is launched
+  // Method to check if it it the first time the app is launched
   void checkFirstSeen() async {
     // Look for a bool in the shared prefrences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool _seen = (prefs.getBool('seen') ?? false);
-    // If it is true it means the app has already been launched once and so
-    // the tts greets the user with their name
+    // If it is true it means the app has already been launched once so
+    // the tts greets the user with his/her name
     if (_seen) {
       // Get data from Database
       var dataList = await DatabaseHelper.instance.queryName();
@@ -343,11 +343,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           break;
         }
-
-        
-        
-        
-        // Now at recall of resultListener, the requestcode check at teh beginning
+        // Now at recall of resultListener, the requestcode check at the beginning
         // will trigger and run the correct method linked to the request codes
       }
     });
