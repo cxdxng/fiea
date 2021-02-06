@@ -5,6 +5,7 @@ import 'package:fiea/Chatbot.dart';
 import 'package:fiea/DatabaseHelper.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
+import 'package:fiea/Overview.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ void main() => runApp(MaterialApp(
     '/dbviewer': (context) => DbViewer(),
     '/personCard': (context) => PersonCard(),
     '/editInfo': (context) => EditPersonInfo(),
+    '/overview': (context) => FunctionOverview(),
   },
 ));
 
@@ -251,6 +253,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 currentRequestCode = makeCall;
               }
               break;
+              case "zeig mir was du kannst":{
+                // Give the user feedback
+                bg.speakOut("Das hier sind meine Funktionen");
+                Navigator.pushNamed(context, "/overview");
+              }
+              break;
               default:{
                 // Execute handleNormalResult and pass the msg
                 bool performedAction = await Background().handleNormalResult(msg, context);
@@ -258,6 +266,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 // is not known and so the result will be passed to the Chatbot
                 if (!performedAction) {
                   bool valid = await Chatbot().createResponse(msg);
+                  // If Chatbot also returns false, the action is not known and so
+                  // an error ill be reptoted to the user
                   if(!valid){
                     bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
                   }
@@ -341,10 +351,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
         // will trigger and run the correct method linked to the request codes
       }
     });
-  }
-
-  void updateBoolValue()async{
-    
   }
 
   // Listen to the user
