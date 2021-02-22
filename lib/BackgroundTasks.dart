@@ -21,7 +21,9 @@ class Background {
   - info kennung ...
   - Datenbank löschen
   - Eintrag updaten
-  - 
+  - ... suchen
+  - Zeig mir was du kannst
+  - Wie viel Uhr ist es
   - Datenbank anzeigen
   */
 
