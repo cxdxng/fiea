@@ -50,7 +50,7 @@ class DatabaseHelper {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnBirth TEXT NOT NULL,
-            $columnFacedata TEXT,
+            $columnFacedata TEXT NOT NULL,
             $columnIQ TEXT NOT NULL,
             $columnWeight TEXT NOT NULL,
             $columnHeight TEXT NOT NULL,
@@ -103,11 +103,11 @@ class DatabaseHelper {
     Database db = await instance.database;
     try{
       int id = int.parse(row[columnId]);
-      print(id);
+      
       return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
 
     }catch(FormatException){
-      print("ERROR");
+      
     }
     return null;
   }

@@ -19,6 +19,7 @@ class PersonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Create the UI
+    
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -100,6 +101,7 @@ class PersonCard extends StatelessWidget {
   String makeTitle() {
     // Store information in Map for later use
     data = entries[0];
+    
     // Get necessary data from Map
     tempName = data["name"];
     // Return the name as String for the title

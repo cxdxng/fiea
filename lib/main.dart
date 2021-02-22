@@ -76,7 +76,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void checkFirstSeen() async {
     // Look for a bool in the shared prefrences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
+    bool _seen = await (prefs.getBool('seen') ?? false);
     // If it is true it means the app has already been launched once so
     // the tts greets the user with his/her name
     if (_seen) {
@@ -90,6 +90,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // little introduction and gets prompted to make a new entry
     // with his data
     else {
+      DatabaseHelper.instance.deleteTable();
       // Change the bool to true so at next launch this
       // will not get executed anymore
       prefs.setBool('seen', true);
@@ -206,7 +207,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     });
   }
 
-  void resultListener(SpeechRecognitionResult result) {
+  void resultListener(SpeechRecognitionResult result) async {
     // Get msg from resultListener
     String msg = result.recognizedWords;
     // Set the msg to _text to display it to the user
@@ -214,139 +215,143 @@ class _SpeechScreenState extends State<SpeechScreen> {
       _text = msg;
     });
     // Handle results
-    setState(() async{
-      // Check if msg is empty and if STT is ready again
-      if(msg != "" && _sttState == _stateReady){        
-        // Check the requestCode
-        switch(currentRequestCode){
-          case normalRequest:{ // 100
+   
+    // Check if msg is empty and if STT is ready again
+    if(msg != "" && _sttState == _stateReady){        
+      // Check the requestCode
+      switch(currentRequestCode){
+        case normalRequest:{ // 100
 
-            // Check the msg for spectific actions
-            switch(msg){
-              case "neuer Eintrag":{
-                // Let the user know what he needs to say
-                bg.speakOut("Name und Jahr bitte");
-                //change the current request code to the necessary one
-                currentRequestCode = newEntry;   
+          // Check the msg for spectific actions
+          switch(msg){
+            case "neuer Eintrag":{
+              // Let the user know what he needs to say
+              bg.speakOut("Name und Jahr bitte");
+              //change the current request code to the necessary one
+              currentRequestCode = newEntry;   
+              
+            }
+            break;
+            case "Eintrag updaten":{
+              // Let the user know what he needs to say
+              bg.speakOut("Kennung, Attribut und Wert bitte");
+              //change the current request code to the necessary one
+              currentRequestCode = updateEntry;
+            }
+            break;
+            case "Eintrag löschen":{
+              // Let the user know what he needs to say
+              bg.speakOut("Kennung bitte");
+              //change the current request code to the necessary one
+              currentRequestCode = deleteEntry;     
                 
-              }
-              break;
-              case "Eintrag updaten":{
-                // Let the user know what he needs to say
-                bg.speakOut("Kennung, Attribut und Wert bitte");
-                //change the current request code to the necessary one
-                currentRequestCode = updateEntry;
-              }
-              break;
-              case "Eintrag löschen":{
-                // Let the user know what he needs to say
-                bg.speakOut("Kennung bitte");
-                //change the current request code to the necessary one
-                currentRequestCode = deleteEntry;     
-                  
-              }
-              break;
-              case "Anruf tätigen":{
-                // Let the user know what he needs to say
-                bg.speakOut("Welche Kennung möchtest du anrufen?");
-                // Change the current request code to the necessary one
-                currentRequestCode = makeCall;
-              }
-              break;
-              case "zeig mir was du kannst":{
-                // Give the user feedback
-                bg.speakOut("Das hier sind meine Funktionen");
-                Navigator.pushNamed(context, "/overview");
-              }
-              break;
-              default:{
-                // Execute handleNormalResult and pass the msg
-                bool performedAction = await Background().handleNormalResult(msg, context);
-                // If handleNormalResult returns false then the action
-                // is not known and so the result will be passed to the Chatbot
-                if (!performedAction) {
-                  bool valid = await Chatbot().createResponse(msg);
-                  // If Chatbot also returns false, the action is not known and so
-                  // an error ill be reptoted to the user
-                  if(!valid){
-                    bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
-                  }
+            }
+            break;
+            case "Anruf tätigen":{
+              // Let the user know what he needs to say
+              bg.speakOut("Welche Kennung möchtest du anrufen?");
+              // Change the current request code to the necessary one
+              currentRequestCode = makeCall;
+            }
+            break;
+            case "zeig mir was du kannst":{
+              // Give the user feedback
+              bg.speakOut("Das hier sind meine Funktionen");
+              Navigator.pushNamed(context, "/overview");
+            }
+            break;
+            default:{
+              // Execute handleNormalResult and pass the msg
+              bool performedAction = await Background().handleNormalResult(msg, context);
+              // If handleNormalResult returns false then the action
+              // is not known and so the result will be passed to the Chatbot
+              if (!performedAction) {
+                bool valid = await Chatbot().createResponse(msg);
+                // If Chatbot also returns false, the action is not known and so
+                // an error ill be reptoted to the user
+                if(!valid){
+                  bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
                 }
               }
             }
           }
-          break;
-          case newEntry:{ // 101
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try{
-              bg.insert(split[0], int.parse(split[1]));
-            }catch(e){
-              bg.speakOut(errorText);
-            }
-          }
-          break;
-          case updateEntry:{ // 102
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try{
-              // using second index for id here because 
-              // of number formatting from STT you need to say
-              // "Kennung" before the id because otherwise
-              // the stt returns the number in words
-              int success = await bg.update(int.parse(split[1]), split[2], split[3]);
-              // Let the user know whether action was successful or not
-              if(success != 1){
-                bg.speakOut(errorText);
-              }
-            }catch(FormatException){
-              bg.speakOut(errorText);
-            }
-            
-          }
-          break;
-          case deleteEntry:{ // 103
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try{
-              bg.delete(int.parse(split[1]));
-            }catch(FormatException){
-              bg.speakOut(errorText);
-            }
-          }
-          break;
-          case makeCall:{ // 104
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try{
-              //bg.speakOut("Okay");
-              bg.callID(split[1]);
-            }catch(Exeption){
-              bg.speakOut(errorText);
-            }
-          }
-          break;
         }
-        // Now at recall of resultListener, the requestcode check at the beginning
-        // will trigger and run the correct method linked to the request codes
+        break;
+        case newEntry:{ // 101
+          // Change the current request code to normal request
+          // since information has already been collected
+          currentRequestCode = normalRequest;
+          // Split the result at spaces
+          split = bg.splitResult(msg);
+          // Try executing the method in BackgroundTask and catching error if one occurs
+          try{
+            bg.insert(split[0], int.parse(split[1]));
+          }catch(e){
+            bg.speakOut(errorText);
+          }
+        }
+        break;
+        case updateEntry:{ // 102
+          // Change the current request code to normal request
+          // since information has already been collected
+          currentRequestCode = normalRequest;
+          // Split the result at spaces
+          split = bg.splitResult(msg);
+          // Try executing the method in BackgroundTask and catching error if one occurs
+          try{
+            // using second index for id here because 
+            // of number formatting from STT you need to say
+            // "Kennung" before the id because otherwise
+            // the stt returns the number in words
+            int success = await bg.update(int.parse(split[1]), split[2], split[3]);
+            // Let the user know whether action was successful or not
+            if(success != 1){
+              bg.speakOut(errorText);
+            }
+          }catch(FormatException){
+            bg.speakOut(errorText);
+          }
+          
+        }
+        break;
+        case deleteEntry:{ // 103
+          // Change the current request code to normal request
+          // since information has already been collected
+          currentRequestCode = normalRequest;
+          // Split the result at spaces
+          split = bg.splitResult(msg);
+          // Try executing the method in BackgroundTask and catching error if one occurs
+          try{
+            bg.delete(int.parse(split[1]));
+          }catch(FormatException){
+            bg.speakOut(errorText);
+          }
+        }
+        break;
+        case makeCall:{ // 104
+          // Change the current request code to normal request
+          // since information has already been collected
+          currentRequestCode = normalRequest;
+          // Split the result at spaces
+          split = bg.splitResult(msg);
+          // Try executing the method in BackgroundTask and catching error if one occurs
+          try{
+            //bg.speakOut("Okay");
+            bg.callID(split[1]);
+          }catch(Exeption){
+            bg.speakOut(errorText);
+          }
+        }
+        break;
       }
-    });
+      // Now at recall of resultListener, the requestcode check at the beginning
+      // will trigger and run the correct method linked to the request codes
+    }
+    
+    
+
+
+
   }
 
   // Listen to the user

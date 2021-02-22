@@ -18,6 +18,10 @@ class Background {
   - Gesicht hinzufügen
   - neuer Eintrag
   - Eintrag löschen
+  - info kennung ...
+  - Datenbank löschen
+  - Eintrag updaten
+  - 
   - Datenbank anzeigen
   */
 
@@ -249,7 +253,7 @@ class Background {
   Future<String> generateFaceData() async{
 
     // Get image from Gallery using ImagePicker
-    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 50);
     if(imageFile != null) {
       // Convert image into base64 encoded String and returning it
       base64string = await encodeBase64(imageFile);
