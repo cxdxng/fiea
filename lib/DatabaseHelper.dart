@@ -4,11 +4,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
-
   // Create necessary Variables for SQLite
   static final _databaseName = "Humans.db";
   static final _databaseVersion = 1;
   static final table = 'humanData';
+
+  // Create Database object
+  Database db; // BROOOOOOOOOOO LOOK IF THIS WORKS FAM
 
   // Create column variables
   static final columnId = '_id';
@@ -36,11 +38,11 @@ class DatabaseHelper {
 
   // this opens the database (and creates it if it doesn't exist)
   _initDatabase() async {
+    db = await instance.database;
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
     return await openDatabase(path,
-        version: _databaseVersion,
-        onCreate: _onCreate);
+        version: _databaseVersion, onCreate: _onCreate);
   }
 
   // SQL code to create the database table
@@ -62,14 +64,13 @@ class DatabaseHelper {
 
   // Helper methods
 
-  // All of the methods (insert, update, delete) 
+  // All of the methods (insert, update, delete)
   // can also be done using raw SQL commands
 
   // Inserts a row in the database where each key in the Map is a column name
   // and the value is the column value. The return value is the id of the
   // inserted row.
   Future<int> insert(Map<String, dynamic> row) async {
-    Database db = await instance.database;
     return await db.insert(table, row);
   }
 
@@ -80,42 +81,45 @@ class DatabaseHelper {
     return await db.rawQuery("SELECT * FROM $table");
   }
 
-  Future<List<Map<String, dynamic>>> queryOneRow(int id) async{
+  Future<List<Map<String, dynamic>>> queryOneRow(int id) async {
     Database db = await instance.database;
-    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT * FROM $table WHERE $columnId='$id'");
+    Future<List<Map<String, dynamic>>> data =
+        db.rawQuery("SELECT * FROM $table WHERE $columnId='$id'");
     return data;
   }
 
-  Future<List<Map<String, dynamic>>> queryByName(String name) async{
+  Future<List<Map<String, dynamic>>> queryByName(String name) async {
     Database db = await instance.database;
-    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT * FROM $table WHERE $columnName='$name'");
+    Future<List<Map<String, dynamic>>> data =
+        db.rawQuery("SELECT * FROM $table WHERE $columnName='$name'");
     return data;
   }
 
-  Future<List<Map<String,dynamic>>> queryName() async{
+  Future<List<Map<String, dynamic>>> queryName() async {
     Database db = await instance.database;
-    Future<List<Map<String, dynamic>>> data = db.rawQuery("SELECT $columnName FROM $table WHERE $columnId='1'");
+    Future<List<Map<String, dynamic>>> data =
+        db.rawQuery("SELECT $columnName FROM $table WHERE $columnId='1'");
     return data;
   }
+
   // Assuming here that the id column in the map is set. The other
   // column values will be used to update the row.
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    try{
+    try {
       int id = int.parse(row[columnId]);
-      
-      return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
 
-    }catch(FormatException){
-      
-    }
+      return await db
+          .update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    } catch (FormatException) {}
     return null;
   }
 
   // Add facedata to the table usinf rawSQL command
-  Future<String> addFace(String facedata, int id)async{
+  Future<String> addFace(String facedata, int id) async {
     Database db = await instance.database;
-    await db.execute("UPDATE $table SET $columnFacedata ='$facedata' WHERE $columnId='$id'");
+    await db.execute(
+        "UPDATE $table SET $columnFacedata ='$facedata' WHERE $columnId='$id'");
     return "Success";
   }
 
@@ -126,16 +130,16 @@ class DatabaseHelper {
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 
-  // Delete the table if it exists and immediately create a fresh one 
-  Future<bool> deleteTable() async{
-    try{
+  // Delete the table if it exists and immediately create a fresh one
+  Future<bool> deleteTable() async {
+    try {
       Database db = await instance.database;
       await db.execute("DROP TABLE IF EXISTS $table");
       print("Dropped table successfully");
       await _onCreate(db, _databaseVersion);
       print("Created new Table: $table");
       return true;
-    }catch(e){
+    } catch (e) {
       return false;
     }
   }
