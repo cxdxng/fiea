@@ -17,21 +17,19 @@ import 'BackgroundTasks.dart';
 import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
-
-  // Declare routes for changing screens
-  initialRoute: '/',
-  routes: {
-    '/': (context) => SpeechScreen(),
-    '/test': (context) => TTS(),
-    '/dbviewer': (context) => DbViewer(),
-    '/personCard': (context) => PersonCard(),
-    '/editInfo': (context) => EditPersonInfo(),
-    '/overview': (context) => FunctionOverview(),
-  },
-));
+      // Declare routes for changing screens
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SpeechScreen(),
+        '/test': (context) => TTS(),
+        '/dbviewer': (context) => DbViewer(),
+        '/personCard': (context) => PersonCard(),
+        '/editInfo': (context) => EditPersonInfo(),
+        '/overview': (context) => FunctionOverview(),
+      },
+    ));
 
 class SpeechScreen extends StatefulWidget {
-
   // Create EventEmitter to change speech animation when TTS is finished
   static EventEmitter ttsEmitter = new EventEmitter();
 
@@ -40,7 +38,6 @@ class SpeechScreen extends StatefulWidget {
 }
 
 class _SpeechScreenState extends State<SpeechScreen> {
-
   // Create necessary Objects
   stt.SpeechToText _speech;
   Background bg = Background();
@@ -86,7 +83,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       String username = dataList[0]["name"];
       bg.speakOut("Wilkommen $username\nWie kann ich dir helfen");
     }
-    // However if it is the first launch, the user will get a 
+    // However if it is the first launch, the user will get a
     // little introduction and gets prompted to make a new entry
     // with his data
     else {
@@ -98,7 +95,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
       // need to tell the assistant an action first
       currentRequestCode = 101;
       // Speakout the introducion
-      Background().speakOut("Hallo\n und Wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nDrücke dazu einfach den Mikrofon button und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
+      Background().speakOut(
+          "Hallo\n und Wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nDrücke dazu einfach den Mikrofon button und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
     }
   }
 
@@ -106,11 +104,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText(); 
+    _speech = stt.SpeechToText();
     // Check for first launch
     checkFirstSeen();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // Create listener to check if tts is speaking or not
@@ -143,20 +141,20 @@ class _SpeechScreenState extends State<SpeechScreen> {
               if (isFinished) {
                 // If so then listen to the user
                 listen();
-              }            
+              }
             },
             backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
         ),
-
         body: Container(
           decoration: BoxDecoration(
-            image: DecorationImage(
-              // Set animation depending on isFinished value
-              image: isFinished ? AssetImage("assets/aiIdle.gif"):AssetImage("assets/aiTalking.gif"),
-            )
-          ),
+              image: DecorationImage(
+            // Set animation depending on isFinished value
+            image: isFinished
+                ? AssetImage("assets/aiIdle.gif")
+                : AssetImage("assets/aiTalking.gif"),
+          )),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -170,7 +168,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
-                    ),
+                  ),
                 ),
               ),
               SingleChildScrollView(
@@ -197,14 +195,17 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void statusListener(String status) {
     // Set lastStatus to current Status so resultListener
     // knows when STT is not listening anymore
-    setState(() {
-      if (status == "notListening") {
+
+    if (status == "notListening") {
+      setState(() {
         _sttState = _stateReady;
-        listen();
-      }else{
+      });
+      listen();
+    } else {
+      setState(() {
         _sttState = _stateBusy;
-      }
-    });
+      });
+    }
   }
 
   void resultListener(SpeechRecognitionResult result) async {
@@ -215,143 +216,151 @@ class _SpeechScreenState extends State<SpeechScreen> {
       _text = msg;
     });
     // Handle results
-   
-    // Check if msg is empty and if STT is ready again
-    if(msg != "" && _sttState == _stateReady){        
-      // Check the requestCode
-      switch(currentRequestCode){
-        case normalRequest:{ // 100
 
-          // Check the msg for spectific actions
-          switch(msg){
-            case "neuer Eintrag":{
-              // Let the user know what he needs to say
-              bg.speakOut("Name und Jahr bitte");
-              //change the current request code to the necessary one
-              currentRequestCode = newEntry;   
-              
-            }
-            break;
-            case "Eintrag updaten":{
-              // Let the user know what he needs to say
-              bg.speakOut("Kennung, Attribut und Wert bitte");
-              //change the current request code to the necessary one
-              currentRequestCode = updateEntry;
-            }
-            break;
-            case "Eintrag löschen":{
-              // Let the user know what he needs to say
-              bg.speakOut("Kennung bitte");
-              //change the current request code to the necessary one
-              currentRequestCode = deleteEntry;     
-                
-            }
-            break;
-            case "Anruf tätigen":{
-              // Let the user know what he needs to say
-              bg.speakOut("Welche Kennung möchtest du anrufen?");
-              // Change the current request code to the necessary one
-              currentRequestCode = makeCall;
-            }
-            break;
-            case "zeig mir was du kannst":{
-              // Give the user feedback
-              bg.speakOut("Das hier sind meine Funktionen");
-              Navigator.pushNamed(context, "/overview");
-            }
-            break;
-            default:{
-              // Execute handleNormalResult and pass the msg
-              bool performedAction = await Background().handleNormalResult(msg, context);
-              // If handleNormalResult returns false then the action
-              // is not known and so the result will be passed to the Chatbot
-              if (!performedAction) {
-                bool valid = await Chatbot().createResponse(msg);
-                // If Chatbot also returns false, the action is not known and so
-                // an error ill be reptoted to the user
-                if(!valid){
-                  bg.speakOut("Tut mir leid, das habe ich nicht verstanden");
+    // Check if msg is empty and if STT is ready again
+    if (msg != "" && _sttState == _stateReady) {
+      // Check the requestCode first so that a specific one can be detectet soon
+      switch (currentRequestCode) {
+        case normalRequest:
+          {
+            // 100
+            // Check the msg for spectific actions
+            switch (msg) {
+              case "neuer Eintrag":
+                {
+                  // Let the user know what he needs to say
+                  bg.speakOut("Name und Jahr bitte");
+                  //change the current request code to the necessary one
+                  currentRequestCode = newEntry;
                 }
-              }
-            }
-          }
-        }
-        break;
-        case newEntry:{ // 101
-          // Change the current request code to normal request
-          // since information has already been collected
-          currentRequestCode = normalRequest;
-          // Split the result at spaces
-          split = bg.splitResult(msg);
-          // Try executing the method in BackgroundTask and catching error if one occurs
-          try{
-            bg.insert(split[0], int.parse(split[1]));
-          }catch(e){
-            bg.speakOut(errorText);
-          }
-        }
-        break;
-        case updateEntry:{ // 102
-          // Change the current request code to normal request
-          // since information has already been collected
-          currentRequestCode = normalRequest;
-          // Split the result at spaces
-          split = bg.splitResult(msg);
-          // Try executing the method in BackgroundTask and catching error if one occurs
-          try{
-            // using second index for id here because 
-            // of number formatting from STT you need to say
-            // "Kennung" before the id because otherwise
-            // the stt returns the number in words
-            int success = await bg.update(int.parse(split[1]), split[2], split[3]);
-            // Let the user know whether action was successful or not
-            if(success != 1){
+                break;
+              case "Eintrag updaten":
+                {
+                  // Let the user know what he needs to say
+                  bg.speakOut("Kennung, Attribut und Wert bitte");
+                  //change the current request code to the necessary one
+                  currentRequestCode = updateEntry;
+                }
+                break;
+              case "Eintrag löschen":
+                {
+                  // Let the user know what he needs to say
+                  bg.speakOut("Kennung bitte");
+                  //change the current request code to the necessary one
+                  currentRequestCode = deleteEntry;
+                }
+                break;
+              case "Anruf tätigen":
+                {
+                  // Let the user know what he needs to say
+                  bg.speakOut("Welche Kennung möchtest du anrufen?");
+                  // Change the current request code to the necessary one
+                  currentRequestCode = makeCall;
+                }
+                break;
+              case "zeig mir was du kannst":
+                {
+                  // Give the user feedback
+                  bg.speakOut("Das hier sind meine Funktionen");
+                  Navigator.pushNamed(context, "/overview");
+                }
+                break;
+              // If it is no specific Action, execute handleNomalResult to check what the user wants to do
+              default:
+                {
+                  // Execute handleNormalResult and pass the msg
+                  bool performedAction =
+                      await Background().handleNormalResult(msg, context);
+                  // If handleNormalResult returns false then the action
+                  // is not known and so the result will be passed to the Chatbot
+                  if (!performedAction) {
+                    bool valid = await Chatbot().createResponse(msg);
+                    // If Chatbot also returns false, the action is not known and so
+                    // an error will be reptoted to the user
+                    if (!valid) {
+                      bg.speakOut(
+                          "Tut mir leid, das habe ich nicht verstanden");
+                    }
+                  } // if (!performedAction)
+                } // default
+            } // switch(msg)
+          } // case nomalRequest
+          break;
+        case newEntry:
+          {
+            // 101
+            // Change the current request code to normal request
+            // since information has already been collected
+            currentRequestCode = normalRequest;
+            // Split the result at spaces
+            split = bg.splitResult(msg);
+            // Try executing the method in BackgroundTask and catching error if one occurs
+            try {
+              bg.insert(split[0], int.parse(split[1]));
+            } catch (e) {
               bg.speakOut(errorText);
             }
-          }catch(FormatException){
-            bg.speakOut(errorText);
           }
-          
-        }
-        break;
-        case deleteEntry:{ // 103
-          // Change the current request code to normal request
-          // since information has already been collected
-          currentRequestCode = normalRequest;
-          // Split the result at spaces
-          split = bg.splitResult(msg);
-          // Try executing the method in BackgroundTask and catching error if one occurs
-          try{
-            bg.delete(int.parse(split[1]));
-          }catch(FormatException){
-            bg.speakOut(errorText);
+          break;
+        case updateEntry:
+          {
+            // Change the current request code to normal request
+            // since information has already been collected
+            currentRequestCode = normalRequest;
+            // Split the result at spaces
+            split = bg.splitResult(msg);
+            // Try executing the method in BackgroundTask and catching error if one occurs
+            try {
+              // using second index for id here because
+              // of number formatting from STT you need to say
+              // "Kennung" before the id because otherwise
+              // the stt returns the number in words
+              int success =
+                  await bg.update(int.parse(split[1]), split[2], split[3]);
+              // Let the user know whether action was successful or not
+              if (success != 1) {
+                bg.speakOut(errorText);
+              }
+            } catch (FormatException) {
+              bg.speakOut(errorText);
+            }
           }
-        }
-        break;
-        case makeCall:{ // 104
-          // Change the current request code to normal request
-          // since information has already been collected
-          currentRequestCode = normalRequest;
-          // Split the result at spaces
-          split = bg.splitResult(msg);
-          // Try executing the method in BackgroundTask and catching error if one occurs
-          try{
-            //bg.speakOut("Okay");
-            bg.callID(split[1]);
-          }catch(Exeption){
-            bg.speakOut(errorText);
+          break;
+        case deleteEntry:
+          {
+            // Change the current request code to normal request
+            // since information has already been collected
+            currentRequestCode = normalRequest;
+            // Split the result at spaces
+            split = bg.splitResult(msg);
+            // Try executing the method in BackgroundTask and catching error if one occurs
+            try {
+              bg.delete(int.parse(split[1]));
+            } catch (FormatException) {
+              bg.speakOut(errorText);
+            }
           }
-        }
-        break;
+          break;
+        case makeCall:
+          {
+            // Change the current request code to normal request
+            // since information has already been collected
+            currentRequestCode = normalRequest;
+            // Split the result at spaces
+            split = bg.splitResult(msg);
+            // Try executing the method in BackgroundTask and catching error if one occurs
+            try {
+              //bg.speakOut("Okay");
+              bg.callID(split[1]);
+            } catch (Exeption) {
+              bg.speakOut(errorText);
+            }
+          }
+          break;
       }
       // Now at recall of resultListener, the requestcode check at the beginning
-      // will trigger and run the correct method linked to the request codes
+      // will trigger and run the correct method linked to the corresponding request code
     }
-    
-    
-
-
-
   }
 
   // Listen to the user
@@ -364,16 +373,16 @@ class _SpeechScreenState extends State<SpeechScreen> {
         onError: (val) => print("onError: $val"),
       );
 
-      // If STT got initialzed successfully 
-      // then listen to the user 
+      // If STT got initialzed successfully
+      // then listen to the user
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
           // Set a result Listener
           onResult: resultListener,
         );
-      } 
-    }else {
+      }
+    } else {
       setState(() {
         _isListening = false;
       });
