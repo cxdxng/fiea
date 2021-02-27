@@ -50,7 +50,7 @@ class DatabaseHelper {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnBirth TEXT NOT NULL,
-            $columnFacedata TEXT NOT NULL,
+            $columnFacedata TEXT,
             $columnIQ TEXT NOT NULL,
             $columnWeight TEXT NOT NULL,
             $columnHeight TEXT NOT NULL,
