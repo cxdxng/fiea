@@ -67,9 +67,7 @@ class DatabaseHelper {
   // All of the methods (insert, update, delete)
   // can also be done using raw SQL commands
 
-  // Inserts a row in the database where each key in the Map is a column name
-  // and the value is the column value. The return value is the id of the
-  // inserted row.
+  // Inserts a row in the database
   Future<int> insert(Map<String, dynamic> row) async {
     return await db.insert(table, row);
   }
