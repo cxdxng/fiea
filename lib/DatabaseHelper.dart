@@ -10,7 +10,7 @@ class DatabaseHelper {
   static final table = 'humanData';
 
   // Create Database object
-  Database db; // BROOOOOOOOOOO LOOK IF THIS WORKS FAM
+  Database db;
 
   // Create column variables
   static final columnId = '_id';

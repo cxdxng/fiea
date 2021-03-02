@@ -324,4 +324,3 @@ class Background {
     return Uint8List.fromList(base64Decode(encoded));
   }
 }
-/* https://trello.com/b/oECiBL2s/fiea */
