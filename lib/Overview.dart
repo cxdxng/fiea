@@ -52,7 +52,7 @@ class FunctionOverview extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
+                                      padding: const EdgeInsets.only(right: 15),
                                       child: Icon(icons[index]),
                                     ),
                                     Text(
@@ -85,7 +85,7 @@ class FunctionOverview extends StatelessWidget {
                   size: 30,
                 ),
               ),
-              onTap: (){Navigator.pop(context);}
+              onTap:() => Navigator.pop(context)
             ),
           ],
         ),
