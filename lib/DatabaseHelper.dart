@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,8 +10,6 @@ class DatabaseHelper {
   static final _databaseVersion = 1;
   static final table = 'humanData';
 
-  // Create Database object
-  Database db;
 
   // Create column variables
   static final columnId = '_id';
@@ -38,7 +37,6 @@ class DatabaseHelper {
 
   // this opens the database (and creates it if it doesn't exist)
   _initDatabase() async {
-    db = await instance.database;
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
     return await openDatabase(path,
@@ -69,6 +67,7 @@ class DatabaseHelper {
 
   // Inserts a row in the database
   Future<int> insert(Map<String, dynamic> row) async {
+    Database db = await instance.database;
     return await db.insert(table, row);
   }
 
