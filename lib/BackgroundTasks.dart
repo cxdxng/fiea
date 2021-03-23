@@ -14,9 +14,9 @@ import 'DatabaseHelper.dart';
 import 'package:http/http.dart'as http;
 import 'package:http/http.dart';
 
+
 class Background {
 
-  // Test DB Password: {*=R0\CiNh<#+w*(
 
 
   /*
@@ -44,16 +44,40 @@ class Background {
   bool isTTSfinished = true;
   Map<String, dynamic> row;
 
+  List<dynamic> mysqlData;
+
+  String httpAuthory = "close-transfer.000webhostapp.com";
+
   // Get all data from MySQL database and save them in a local sqlite
   // database so that the database is up to date and available at all times
 
   void getDataFromMySQL()async{
-    Response response = await http.get(Uri.https("esktcorona.000webhostapp.com", "/getAllData.php"));
-    Map data = response.body as Map<dynamic, String> ;
+    Response response = await http.get(Uri.https(httpAuthory, "/getAllData.php"));
+    mysqlData = await jsonDecode(response.body)as List<dynamic>;
+    print(mysqlData);
+    insertInLocalDatabase();
   }
 
-  void insertInLocalDatabase(){
-    
+  void insertInLocalDatabase()async{
+    // Delete all data from database
+
+    dbHelper.emptyTable();
+
+
+    for (var i = 0; i < mysqlData.length; i++) {
+      // Creating a map for easier access
+      row = {
+        DatabaseHelper.columnBirth: mysqlData[i]["birth"],
+        DatabaseHelper.columnIQ: mysqlData[i]["iq"],
+        DatabaseHelper.columnWeight: mysqlData[i]["weight"],
+        DatabaseHelper.columnHeight: mysqlData[i]["height"],
+        DatabaseHelper.columnPhonenumber: mysqlData[i]["number"],
+        DatabaseHelper.columnAddress: mysqlData[i]["address"],
+        DatabaseHelper.columnFacedata: mysqlData[i]["facedata"],
+      };
+      final id = await dbHelper.insert(row);
+      print(id);
+    }
   }
 
   // Process result from STT and run the correct function for the command
@@ -61,7 +85,12 @@ class Background {
     // Split the msg at spaces
     List<String> split = splitResult(msg);
     // Check msg and run corresponding method
-    if (msg.contains("info Kennung")) {
+    
+    if(msg == "fetch data"){
+      getDataFromMySQL();
+    }
+    
+    else if (msg.contains("info Kennung")) {
       try {
         // Pass msg to method
         List<Map<String, dynamic>> singleData =
@@ -108,14 +137,8 @@ class Background {
       return true;
     } else if (msg == "Datenbank löschen") {
       // Delete the current table from Database
-      bool success = dbHelper.deleteTable() as bool;
-      // Check for success
-      if (success) {
-        speakOut(
-            "Datenbank erfolgreich gelöscht\nNeue Daten bank wurde automatisch erstellt");
-      } else {
-        speakOut(errorText);
-      }
+      dbHelper.deleteTable();
+      
       return true;
     } else if (msg.contains(" suchen")) {
       try {
@@ -149,7 +172,21 @@ class Background {
       DatabaseHelper.columnAddress: nA,
       DatabaseHelper.columnFacedata: nA,
     };
+    print(row);
     final id = await dbHelper.insert(row);
+
+    var rowMySQL = {
+      DatabaseHelper.columnId: id.toString(),
+      DatabaseHelper.columnName: name,
+      DatabaseHelper.columnBirth: year.toString(),
+      DatabaseHelper.columnIQ: nA.toString(),
+      DatabaseHelper.columnWeight: nA.toString(),
+      DatabaseHelper.columnHeight: nA.toString(),
+      DatabaseHelper.columnPhonenumber: nA.toString(),
+      DatabaseHelper.columnAddress: nA,
+      DatabaseHelper.columnFacedata: nA,
+    };
+    //var response = await http.post(Uri.https(httpAuthory, "/insert.php"), body: rowMySQL);
     // Let user know which id the new entry has
     speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
   }
