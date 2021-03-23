@@ -11,7 +11,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
 
+import 'package:http/http.dart'as http;
+import 'package:http/http.dart';
+
 class Background {
+
+  // Test DB Password: {*=R0\CiNh<#+w*(
+
+
   /*
   +++COMMANDS+++
   - Gesicht hinzufügen
@@ -36,6 +43,18 @@ class Background {
   String errorText = "Fehler, bitte versuche es erneut";
   bool isTTSfinished = true;
   Map<String, dynamic> row;
+
+  // Get all data from MySQL database and save them in a local sqlite
+  // database so that the database is up to date and available at all times
+
+  void getDataFromMySQL()async{
+    Response response = await http.get(Uri.https("esktcorona.000webhostapp.com", "/getAllData.php"));
+    Map data = response.body as Map<dynamic, String> ;
+  }
+
+  void insertInLocalDatabase(){
+    
+  }
 
   // Process result from STT and run the correct function for the command
   Future<bool> handleNormalResult(String msg, BuildContext context) async {

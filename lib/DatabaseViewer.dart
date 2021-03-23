@@ -200,5 +200,4 @@ class DbViewer extends StatelessWidget {
         builder: (context) => PersonCard(entries: dataList,),
     ));
   }
-
 }
