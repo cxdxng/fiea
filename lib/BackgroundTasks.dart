@@ -67,6 +67,7 @@ class Background {
     for (var i = 0; i < mysqlData.length; i++) {
       // Creating a map for easier access
       row = {
+        DatabaseHelper.columnName : mysqlData[i]["name"],
         DatabaseHelper.columnBirth: mysqlData[i]["birth"],
         DatabaseHelper.columnIQ: mysqlData[i]["iq"],
         DatabaseHelper.columnWeight: mysqlData[i]["weight"],
@@ -76,7 +77,7 @@ class Background {
         DatabaseHelper.columnFacedata: mysqlData[i]["facedata"],
       };
       final id = await dbHelper.insert(row);
-      print(id);
+      print(row);
     }
   }
 
@@ -186,7 +187,8 @@ class Background {
       DatabaseHelper.columnAddress: nA,
       DatabaseHelper.columnFacedata: nA,
     };
-    //var response = await http.post(Uri.https(httpAuthory, "/insert.php"), body: rowMySQL);
+    var response = await http.post(Uri.https(httpAuthory, "/insert.php"), body: rowMySQL);
+    print(response.body);
     // Let user know which id the new entry has
     speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
   }

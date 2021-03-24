@@ -148,7 +148,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
   // a hint in the textfields
   void setInfos(){
     data = widget.entries[0];
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempName = data["name"].toString();
     tempBirth = data["birth"].toString();
     tempHeight = data["height"].toString();

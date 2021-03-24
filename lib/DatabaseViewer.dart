@@ -108,7 +108,7 @@ class DbViewer extends StatelessWidget {
     // Store information in Map for later use
     data = entries[index];
     // Get necessary data from Map
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempName = data["name"];
     // Return the title as a String
     return "#$tempId: $tempName";
@@ -170,7 +170,7 @@ class DbViewer extends StatelessWidget {
     // Get necessary data from Map
     tempFacedata = data["facedata"];
     tempName = data["name"].toString();
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempBirth = data["birth"].toString();
     tempHeight = data["height"].toString();
     tempIQ = data["iq"].toString();
@@ -180,7 +180,7 @@ class DbViewer extends StatelessWidget {
     // Create Map with String and dynamic type and fill
     // it with user info for passing to PersonCard
     Map<String, dynamic> content = {
-      "_id": tempId,
+      "id": tempId,
       "name": tempName,
       "birth": tempBirth,
       "facedata": tempFacedata,

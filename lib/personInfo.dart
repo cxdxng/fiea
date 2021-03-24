@@ -40,6 +40,7 @@ class PersonCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
                     child: Column(
+                      //crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         checkForFaceData(),
                         Padding(
@@ -59,15 +60,18 @@ class PersonCard extends StatelessWidget {
                           color: darkBackground,
                         ),
                         Expanded(
-                          child: SingleChildScrollView(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
-                              child: Text(
-                                makeSubTitle(),
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  height: 2,
-                                  color: Colors.white,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                                child: Text(
+                                  makeSubTitle(),
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    height: 2,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -112,13 +116,16 @@ class PersonCard extends StatelessWidget {
     // Store information in Map for later use
     data = entries[0];
     // Get necessary data from Map
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempBirth = data["birth"].toString();
     tempHeight = data["height"].toString();
     tempIQ = data["iq"].toString();
     tempWeight = data["weight"].toString();
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
+
+    print("$tempId$tempBirth$tempIQ$tempHeight$tempWeight$tempNumber$tempAddress");
+
     // Return user info as correctly formatted String
     return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
   }
@@ -168,7 +175,7 @@ class PersonCard extends StatelessWidget {
       "number": tempNumber,
       "address": tempAddress,
       "displayName": tempName,
-      "_id": tempId,
+      "id": tempId,
       "facedata": tempFacedata,
     };
     // Add the Map to a Lst because it is necessary for passing
