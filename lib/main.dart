@@ -318,7 +318,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
               int success =
                   await bg.update(int.parse(split[1]), split[2], split[3]);
               // Let the user know whether action was successful or not
-              if (success != 1) {
+              if (success == 1) {
+                bg.speakOut("Eintrag erfolgreich geupdated");
+              }else{
                 bg.speakOut(errorText);
               }
             } catch (FormatException) {

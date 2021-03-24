@@ -165,7 +165,7 @@ class Background {
     // Creating a map for easier access
     row = {
       DatabaseHelper.columnName: name,
-      DatabaseHelper.columnBirth: year,
+      DatabaseHelper.columnBirth: year.toString(),
       DatabaseHelper.columnIQ: nA,
       DatabaseHelper.columnWeight: nA,
       DatabaseHelper.columnHeight: nA,
@@ -175,20 +175,9 @@ class Background {
     };
     print(row);
     final id = await dbHelper.insert(row);
-
-    var rowMySQL = {
-      DatabaseHelper.columnId: id.toString(),
-      DatabaseHelper.columnName: name,
-      DatabaseHelper.columnBirth: year.toString(),
-      DatabaseHelper.columnIQ: nA.toString(),
-      DatabaseHelper.columnWeight: nA.toString(),
-      DatabaseHelper.columnHeight: nA.toString(),
-      DatabaseHelper.columnPhonenumber: nA.toString(),
-      DatabaseHelper.columnAddress: nA,
-      DatabaseHelper.columnFacedata: nA,
-    };
-    var response = await http.post(Uri.https(httpAuthory, "/insert.php"), body: rowMySQL);
-    print(response.body);
+    // Add the id to the row
+    row["id"] = id.toString();
+    await http.post(Uri.https(httpAuthory, "/insert.php"), body: row);
     // Let user know which id the new entry has
     speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
   }
@@ -199,13 +188,25 @@ class Background {
     // and create a Map with necessary data in it which is
     // the id and the new value for the column and finally pass
     // the map to dbHelper
+
     switch (toUpdate) {
+      case "Name":
+        {
+          print("lol");
+          row = {
+            DatabaseHelper.columnId: id,
+            DatabaseHelper.columnName: value,
+          };
+          return await dbHelper.update(row);
+        }
+        break;
       case "IQ":
         {
+          
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnIQ: int.parse(value),
-          };
+          };         
           return await dbHelper.update(row);
         }
         break;
@@ -246,6 +247,8 @@ class Background {
         }
     }
 
+    
+
     // If update succeeded this will return 1 and if
     // update fails for any reason this will return 0
     return 0;
@@ -265,6 +268,8 @@ class Background {
       DatabaseHelper.columnId: data[7],
       DatabaseHelper.columnFacedata: data[8],
     };
+
+    await http.post(Uri.https(httpAuthory, "/update.php"), body: row);
     // Pass data to method
     int success = await dbHelper.update(row);
     // Check for success
@@ -309,8 +314,11 @@ class Background {
 
   // Delete an entry from the Database
   void delete(int id) async {
+
     // Pass data to method
+    await http.post(Uri.https(httpAuthory, "/delete.php"), body: {"id": id.toString()});
     final rowsDeleted = await dbHelper.delete(id);
+
     if (rowsDeleted == 1) {
       speakOut("Eintrag erfolgreich gelöscht");
     } else {
