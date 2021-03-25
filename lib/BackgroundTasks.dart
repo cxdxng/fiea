@@ -52,21 +52,21 @@ class Background {
   // database so that the database is up to date and available at all times
 
   void getDataFromMySQL()async{
+    // Get data from MySQL
     Response response = await http.get(Uri.https(httpAuthory, "/getAllData.php"));
     mysqlData = await jsonDecode(response.body)as List<dynamic>;
-    print(mysqlData);
+    // Insert the result into the local database
     insertInLocalDatabase();
   }
 
   void insertInLocalDatabase()async{
     // Delete all data from database
-
     dbHelper.emptyTable();
-
 
     for (var i = 0; i < mysqlData.length; i++) {
       // Creating a map for easier access
       row = {
+        DatabaseHelper.columnId : mysqlData[i]["id"],
         DatabaseHelper.columnName : mysqlData[i]["name"],
         DatabaseHelper.columnBirth: mysqlData[i]["birth"],
         DatabaseHelper.columnIQ: mysqlData[i]["iq"],
@@ -76,8 +76,8 @@ class Background {
         DatabaseHelper.columnAddress: mysqlData[i]["address"],
         DatabaseHelper.columnFacedata: mysqlData[i]["facedata"],
       };
-      final id = await dbHelper.insert(row);
-      print(row);
+      // Insert every row into sqlite db
+      await dbHelper.insert(row);
     }
   }
 
@@ -192,17 +192,18 @@ class Background {
     switch (toUpdate) {
       case "Name":
         {
-          print("lol");
+          updateMySQL(id, "name", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnName: value,
           };
           return await dbHelper.update(row);
+          
         }
         break;
       case "IQ":
         {
-          
+          updateMySQL(id, "iq", value); 
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnIQ: int.parse(value),
@@ -212,6 +213,7 @@ class Background {
         break;
       case "Gewicht":
         {
+          updateMySQL(id, "weight", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnWeight: "$value kg",
@@ -221,6 +223,7 @@ class Background {
         break;
       case "Größe":
         {
+          updateMySQL(id, "height", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnHeight: "$value cm"
@@ -230,6 +233,7 @@ class Background {
         break;
       case "Nummer":
         {
+          updateMySQL(id, "number", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnPhonenumber: value
@@ -239,6 +243,7 @@ class Background {
         break;
       case "Adresse":
         {
+          updateMySQL(id, "address", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnAddress: value
@@ -388,5 +393,11 @@ class Background {
   // displaying it in Image widget
   Uint8List decodeBase64(String encoded) {
     return Uint8List.fromList(base64Decode(encoded));
+  }
+
+  // Update one column in MySQL database
+  void updateMySQL(int id, String column, String value)async{
+    var response = await http.post(Uri.https(httpAuthory, "/updateOne.php"), body: {"id": id.toString(), "column": column, "value": value});
+    print(response.body);
   }
 }

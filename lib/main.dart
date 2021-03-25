@@ -77,6 +77,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // If it is true it means the app has already been launched once so
     // the tts greets the user with his/her name
     if (_seen) {
+      // Fetch data from MySQL
+
+      await Background().getDataFromMySQL();
+
       // Get data from Database
       var dataList = await DatabaseHelper.instance.queryName();
       // Extract username and speak out the greeting
