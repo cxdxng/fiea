@@ -18,7 +18,7 @@ import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
       // Declare routes for changing screens
-      initialRoute: '/',
+      initialRoute: '/test',
       routes: {
         '/': (context) => SpeechScreen(),
         '/test': (context) => TTS(),
@@ -46,7 +46,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   bool _isListening = false;
   String _stateBusy = "F.I.E.A hört zu";
   String _stateReady = "F.I.E.A Bereit";
-  String _sttState = "F.I.E.A Bereit";
+  String _sttState;
 
   // UI prediciton text
   String _text = "Sag etwas...";
@@ -109,6 +109,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    _sttState = _stateReady;
     // Check for first launch
     checkFirstSeen();
   }

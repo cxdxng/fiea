@@ -357,7 +357,7 @@ class Background {
     return toSplit.split(" ");
   }
 
-  // Encode an image into a Base64 encoded String
+  // Encode an image into a Base64 String
   Future<String> encodeBase64(File imageFile) async {
     Uint8List bytes = await imageFile.readAsBytes();
     String encoded = base64.encode(bytes);
@@ -365,7 +365,7 @@ class Background {
   }
 
   // Decode a Base64 String into a Uint8List for
-  // displaying it in Image widget
+  // displaying it in an Image widget
   Uint8List decodeBase64(String encoded) {
     return Uint8List.fromList(base64Decode(encoded));
   }
