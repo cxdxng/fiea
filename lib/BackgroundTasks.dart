@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/main.dart';
 import 'package:fiea/personInfo.dart';
@@ -17,22 +18,6 @@ import 'package:http/http.dart';
 
 class Background {
 
-
-
-  /*
-  +++COMMANDS+++
-  - Gesicht hinzufügen
-  - neuer Eintrag
-  - Eintrag löschen
-  - info kennung ...
-  - Datenbank löschen
-  - Eintrag updaten
-  - ... suchen
-  - Zeig mir was du kannst
-  - Wie viel Uhr ist es
-  - Datenbank anzeigen
-  */
-
   // Create necessary Objects
   final dbHelper = DatabaseHelper.instance;
   FlutterTts tts = FlutterTts();
@@ -45,6 +30,7 @@ class Background {
   Map<String, dynamic> row;
 
   List<dynamic> mysqlData;
+  
 
   String httpAuthory = "close-transfer.000webhostapp.com";
 
@@ -85,13 +71,8 @@ class Background {
   Future<bool> handleNormalResult(String msg, BuildContext context) async {
     // Split the msg at spaces
     List<String> split = splitResult(msg);
-    // Check msg and run corresponding method
-    
-    if(msg == "fetch data"){
-      getDataFromMySQL();
-    }
-    
-    else if (msg.contains("info Kennung")) {
+    // Check msg and run corresponding method    
+    if (msg.contains("info Kennung")) {
       try {
         // Pass msg to method
         List<Map<String, dynamic>> singleData =
@@ -111,7 +92,7 @@ class Background {
     } else if (msg.contains("Gesicht hinzufügen")) {
       // Get Facedata from Imagepicker
       String result = await generateFaceData();
-
+      await http.post(Uri.https(httpAuthory, "/updateOne.php"),body: {"id": split[3], "column": "facedata", "value": result});
       // Check for success
       if (result != "") {
         // Pass msg to method
@@ -154,11 +135,18 @@ class Background {
       } catch (e) {
         speakOut(errorText);
       }
+    }else if(msg.contains("öffne")){
+      openApp(split[1]);
+      speakOut("Wird geöffnet");
+      return true;
     }
     // If non of the methods above fired, return false to go on with
     // passing the msg to the Chatbot
     return false;
   }
+
+  // HELPER FUNCTIONS
+
 
   // Insert a new entry into the Table
   void insert(String name, int year) async {
@@ -173,7 +161,6 @@ class Background {
       DatabaseHelper.columnAddress: nA,
       DatabaseHelper.columnFacedata: nA,
     };
-    print(row);
     final id = await dbHelper.insert(row);
     // Add the id to the row
     row["id"] = id.toString();
@@ -188,72 +175,61 @@ class Background {
     // and create a Map with necessary data in it which is
     // the id and the new value for the column and finally pass
     // the map to dbHelper
-
     switch (toUpdate) {
-      case "Name":
-        {
-          updateMySQL(id, "name", value);
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnName: value,
-          };
-          return await dbHelper.update(row);
-          
-        }
-        break;
-      case "IQ":
-        {
-          updateMySQL(id, "iq", value); 
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnIQ: int.parse(value),
-          };         
-          return await dbHelper.update(row);
-        }
-        break;
-      case "Gewicht":
-        {
-          updateMySQL(id, "weight", value);
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnWeight: "$value kg",
-          };
-          return await dbHelper.update(row);
-        }
-        break;
-      case "Größe":
-        {
-          updateMySQL(id, "height", value);
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnHeight: "$value cm"
-          };
-          return await dbHelper.update(row);
-        }
-        break;
-      case "Nummer":
-        {
-          updateMySQL(id, "number", value);
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnPhonenumber: value
-          };
-          return await dbHelper.update(row);
-        }
-        break;
-      case "Adresse":
-        {
-          updateMySQL(id, "address", value);
-          row = {
-            DatabaseHelper.columnId: id,
-            DatabaseHelper.columnAddress: value
-          };
-          return await dbHelper.update(row);
-        }
+      case "Name":{
+        updateMySQL(id, "name", value);
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnName: value,
+        };
+        return await dbHelper.update(row);
+      }
+      break;
+      case "IQ":{
+        updateMySQL(id, "iq", value); 
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnIQ: int.parse(value),
+        };         
+        return await dbHelper.update(row);
+      }
+      break;
+      case "Gewicht":{
+        updateMySQL(id, "weight", value);
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnWeight: "$value kg",
+        };
+        return await dbHelper.update(row);
+      }
+      break;
+      case "Größe":{
+        updateMySQL(id, "height", value);
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnHeight: "$value cm"
+        };
+        return await dbHelper.update(row);
+      }
+      break;
+      case "Nummer":{
+        updateMySQL(id, "number", value);
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnPhonenumber: value
+        };
+        return await dbHelper.update(row);
+      }
+      break;
+      case "Adresse":{
+        updateMySQL(id, "address", value);
+        row = {
+          DatabaseHelper.columnId: id,
+          DatabaseHelper.columnAddress: value
+        };
+        return await dbHelper.update(row);
+      }
     }
-
-    
-
     // If update succeeded this will return 1 and if
     // update fails for any reason this will return 0
     return 0;
@@ -273,7 +249,7 @@ class Background {
       DatabaseHelper.columnId: data[7],
       DatabaseHelper.columnFacedata: data[8],
     };
-
+    // Update MySQL data
     await http.post(Uri.https(httpAuthory, "/update.php"), body: row);
     // Pass data to method
     int success = await dbHelper.update(row);
@@ -319,11 +295,10 @@ class Background {
 
   // Delete an entry from the Database
   void delete(int id) async {
-
-    // Pass data to method
+    // Delete MySQL entry
     await http.post(Uri.https(httpAuthory, "/delete.php"), body: {"id": id.toString()});
+    // Pass data to method
     final rowsDeleted = await dbHelper.delete(id);
-
     if (rowsDeleted == 1) {
       speakOut("Eintrag erfolgreich gelöscht");
     } else {
@@ -399,5 +374,20 @@ class Background {
   void updateMySQL(int id, String column, String value)async{
     var response = await http.post(Uri.https(httpAuthory, "/updateOne.php"), body: {"id": id.toString(), "column": column, "value": value});
     print(response.body);
+  }
+
+  // Open a certain App
+  void openApp(String appName)async{
+    // Check for app name and open app according to its package name
+    switch(appName){
+        case "whatsapp":{
+          await LaunchApp.openApp(androidPackageName: "com.whatsapp", openStore: false);
+        }
+        break;
+        case "youtube":{
+          await LaunchApp.openApp(androidPackageName: "com.google.android.youtube", openStore: false);
+        }
+      }
+    
   }
 }
