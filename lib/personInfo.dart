@@ -124,7 +124,6 @@ class PersonCard extends StatelessWidget {
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
 
-    print("$tempId$tempBirth$tempIQ$tempHeight$tempWeight$tempNumber$tempAddress");
 
     // Return user info as correctly formatted String
     return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
