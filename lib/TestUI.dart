@@ -21,12 +21,15 @@ class _TTSSTate extends State<TTS> {
   Color backgroundColour;
   String currentKeyword = "Click to choose a keyword";
   PorcupineManager _porcupineManager;
+  
   @override
   void initState() {
     super.initState();
     this.setState(() {
       isButtonDisabled = true;
       backgroundColour = defaultColour;
+      loadNewKeyword("himbeere");
+      
     });
   }
 
@@ -44,10 +47,11 @@ class _TTSSTate extends State<TTS> {
     }
     try {
       _porcupineManager = await PorcupineManager.fromKeywords(
-          ["jarvis"], wakeWordCallback,
+          [keyword], wakeWordCallback,
           errorCallback: errorCallback);
+          
       this.setState(() {
-        currentKeyword = "jarvis";
+        currentKeyword = keyword;
       });
     } on PvError catch (ex) {
       print("Failed to initialize Porcupine: ${ex.message}");
@@ -152,6 +156,10 @@ class _TTSSTate extends State<TTS> {
               ))),
     );
   }
+
+  
+
+  
 
   Widget footer = Expanded(
       flex: 1,
