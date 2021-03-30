@@ -272,14 +272,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   currentRequestCode = deleteEntry;
                 }
                 break;
-              case "Anruf tätigen":
-                {
-                  // Let the user know what he needs to say
-                  bg.speakOut("Welche Kennung möchtest du anrufen?");
-                  // Change the current request code to the necessary one
-                  currentRequestCode = makeCall;
-                }
-                break;
               case "zeig mir was du kannst":
                 {
                   // Give the user feedback
@@ -367,22 +359,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               bg.speakOut(errorText);
             }
           }
-          break;
-        case makeCall:
-          {
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try {
-              //bg.speakOut("Okay");
-              bg.callID(split[1]);
-            } catch (Exeption) {
-              bg.speakOut(errorText);
-            }
-          }
+          
           break;
       }
       // Now at recall of resultListener, the requestcode check at the beginning

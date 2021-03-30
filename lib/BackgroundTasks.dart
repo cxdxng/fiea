@@ -131,6 +131,8 @@ class Background {
               context,
               MaterialPageRoute(
                   builder: (context) => DbViewer(entries: cardInfo)));
+        }else{
+          speakOut("Keine Ergebnisse für ${split[0]} gefunden");
         }
       } catch (e) {
         speakOut(errorText);
@@ -138,6 +140,10 @@ class Background {
     }else if(msg.contains("öffne")){
       openApp(split[1]);
       speakOut("Wird geöffnet");
+      return true;
+    }else if(msg.contains("rufe")){
+      callID(split[2]);
+      speakOut("Bitteschön");
       return true;
     }
     // If non of the methods above fired, return false to go on with
@@ -249,6 +255,7 @@ class Background {
       DatabaseHelper.columnId: data[7],
       DatabaseHelper.columnFacedata: data[8],
     };
+    
     // Update MySQL data
     await http.post(Uri.https(httpAuthory, "/update.php"), body: row);
     // Pass data to method
