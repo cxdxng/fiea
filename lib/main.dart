@@ -70,7 +70,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   static const int newEntry = 101;
   static const int updateEntry = 102;
   static const int deleteEntry = 103;
-  static const int makeCall = 104;
 
   bool isFinished = true;
 
