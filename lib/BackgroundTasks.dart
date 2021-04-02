@@ -89,7 +89,7 @@ class Background {
       } catch (e) {
         speakOut(errorText);
       }
-    } else if (msg.contains("Gesicht hinzufügen")) {
+    }else if (msg.contains("Gesicht hinzufügen")) {
       // Get Facedata from Imagepicker
       String result = await generateFaceData();
       await http.post(Uri.https(httpAuthory, "/updateOne.php"),body: {"id": split[3], "column": "facedata", "value": result});
@@ -102,7 +102,7 @@ class Background {
         speakOut(errorText);
       }
       return true;
-    } else if (msg == "Datenbank anzeigen") {
+    }else if (msg == "Datenbank anzeigen") {
       // Get data from Database
       List<Map<String, dynamic>> cardInfo = await queryAllData();
 
@@ -117,12 +117,12 @@ class Background {
         speakOut("Keine Daten vorhanden");
       }
       return true;
-    } else if (msg == "Datenbank löschen") {
+    }else if (msg == "Datenbank löschen") {
       // Delete the current table from Database
       dbHelper.deleteTable();
       
       return true;
-    } else if (msg.contains(" suchen")) {
+    }else if (msg.contains(" suchen")) {
       try {
         List<Map<String, dynamic>> cardInfo = await queryByName(split[0]);
         if (cardInfo != null) {
@@ -141,9 +141,12 @@ class Background {
       openApp(split[1]);
       speakOut("Wird geöffnet");
       return true;
-    }else if(msg.contains("rufe")){
+    }else if(msg.contains("rufe")&& msg.contains("an")){
       callID(split[2]);
       speakOut("Bitteschön");
+      return true;
+    }else if (msg == "Netzwerk scannen") {
+      Navigator.pushNamed(context, "/networkScanner");
       return true;
     }
     // If non of the methods above fired, return false to go on with
@@ -348,6 +351,7 @@ class Background {
     // Set language, await speech completion and finally
     // speak the msg
     await tts.setLanguage("de-DE");
+    await tts.setVoice({"name":"de-de-x-deb-network", "locale":"de-DE"});
     await tts.awaitSpeakCompletion(true);
     SpeechScreen.ttsEmitter.emit("SPEAKING", null, "");
     await tts.speak(msg);

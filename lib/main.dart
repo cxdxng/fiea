@@ -5,6 +5,7 @@ import 'package:fiea/Chatbot.dart';
 import 'package:fiea/DatabaseHelper.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
+import 'package:fiea/NetworkScanner.dart';
 import 'package:fiea/Overview.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
@@ -28,6 +29,7 @@ void main() => runApp(MaterialApp(
         '/personCard': (context) => PersonCard(),
         '/editInfo': (context) => EditPersonInfo(),
         '/overview': (context) => FunctionOverview(),
+        '/networkScanner': (context) => NetworkScanner(),
       },
     ));
 

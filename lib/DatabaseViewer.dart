@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class DbViewer extends StatelessWidget {
 
   // Create color variables for UI
-  Color blueAccent = Color(0xff33e1ed);
   Color darkBackground = Color(0xff1e1e2c);
 
   // Create necessary variables
