@@ -11,7 +11,7 @@ class PersonCard extends StatelessWidget {
   // Create necessary variables
   final List<Map<String, dynamic>> entries;
   Map data;
-  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
+  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress, tempOSINT;
   String nA = "Nicht vorhanden";
 
   PersonCard({Key key, this.entries}) : super(key: key);
@@ -123,10 +123,12 @@ class PersonCard extends StatelessWidget {
     tempWeight = data["weight"].toString();
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
+    tempAddress = data["address"].toString();
+    tempOSINT = data["osint"].toString();
 
 
     // Return user info as correctly formatted String
-    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
+    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress\nOSINT: $tempOSINT"; 
   }
 
   Widget checkForFaceData() {
@@ -176,6 +178,7 @@ class PersonCard extends StatelessWidget {
       "displayName": tempName,
       "id": tempId,
       "facedata": tempFacedata,
+      "osint": tempOSINT,
     };
     // Add the Map to a Lst because it is necessary for passing
     List<Map<String, dynamic>> dataList = List();

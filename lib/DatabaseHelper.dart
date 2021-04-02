@@ -21,6 +21,7 @@ class DatabaseHelper {
   static final columnHeight = "height";
   static final columnPhonenumber = "number";
   static final columnAddress = "address";
+  static final columnOSINT = "osint";
   // make this a singleton class
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -55,7 +56,8 @@ class DatabaseHelper {
             $columnWeight TEXT,
             $columnHeight TEXT,
             $columnPhonenumber TEXT,
-            $columnAddress TEXT
+            $columnAddress TEXT,
+            $columnOSINT TEXT
           )
           ''');
   }

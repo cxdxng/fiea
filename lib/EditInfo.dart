@@ -18,7 +18,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
   Color blueAccent = Color(0xff33e1ed);
 
   // Create necessary variables
-  List<String> parameters = ["Name", "Geboren", "IQ", "Größe (in cm)", "Gewicht (in kg)", "Nummer", "Addresse"];
+  List<String> parameters = ["Name", "Geboren", "IQ", "Größe (in cm)", "Gewicht (in kg)", "Nummer", "Addresse", "OSINT"];
   List<String> values;
   Map data;
   String nA = "Nicht vorhanden";
@@ -30,7 +30,8 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
     tempIQ,
     tempWeight, 
     tempNumber,
-    tempAddress;
+    tempAddress,
+    tempOSINT;
   
   bool unsaved = true;
 
@@ -44,7 +45,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
   @override
   Widget build(BuildContext context) {
     // Add the parameter Strings to the List
-    values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata];
+    values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata, tempOSINT];
     // Create the UI
     return SafeArea(
       child: Scaffold(
@@ -157,6 +158,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
     tempFacedata = data["facedata"].toString();
+    tempOSINT = data["osint"].toString();
   }
 
   Widget makeSubTitle() {

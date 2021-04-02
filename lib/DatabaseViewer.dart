@@ -11,7 +11,7 @@ class DbViewer extends StatelessWidget {
   // Create necessary variables
   final List<Map<String, dynamic>> entries;
   Map data;
-  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
+  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress, tempOSINT;
   String nA = "Nicht vorhanden";
 
   DbViewer({Key key, this.entries}) : super(key: key);
@@ -176,6 +176,7 @@ class DbViewer extends StatelessWidget {
     tempWeight = data["weight"].toString();
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
+    tempOSINT = data["osint"].toString();
     // Create Map with String and dynamic type and fill
     // it with user info for passing to PersonCard
     Map<String, dynamic> content = {
@@ -188,6 +189,7 @@ class DbViewer extends StatelessWidget {
       "weight": tempWeight,
       "number": tempNumber,
       "address": tempAddress,
+      "osint": tempOSINT
     };
     // Add the Map to a Lst because it is necessary for passing
     List<Map<String, dynamic>> dataList = List();

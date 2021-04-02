@@ -61,6 +61,7 @@ class Background {
         DatabaseHelper.columnPhonenumber: mysqlData[i]["number"],
         DatabaseHelper.columnAddress: mysqlData[i]["address"],
         DatabaseHelper.columnFacedata: mysqlData[i]["facedata"],
+        DatabaseHelper.columnOSINT: mysqlData[i]["osint"],
       };
       // Insert every row into sqlite db
       await dbHelper.insert(row);
@@ -238,6 +239,7 @@ class Background {
         };
         return await dbHelper.update(row);
       }
+      break;
     }
     // If update succeeded this will return 1 and if
     // update fails for any reason this will return 0
@@ -257,6 +259,7 @@ class Background {
       DatabaseHelper.columnAddress: data[6],
       DatabaseHelper.columnId: data[7],
       DatabaseHelper.columnFacedata: data[8],
+      DatabaseHelper.columnOSINT: data[9],
     };
     
     // Update MySQL data
