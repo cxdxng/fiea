@@ -45,7 +45,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
   @override
   Widget build(BuildContext context) {
     // Add the parameter Strings to the List
-    values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress, tempId, tempFacedata, tempOSINT];
+    values = [tempName, tempBirth, tempIQ, tempHeight, tempWeight, tempNumber, tempAddress ,tempOSINT, tempId, tempFacedata];
     // Create the UI
     return SafeArea(
       child: Scaffold(
@@ -141,7 +141,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
     // Store information in Map for later use
     data = widget.entries[0];
     // Get necessary data from Map
-    tempName = data["displayName"];
+    tempName = data["name"];
     // Return the name as String for the title
     return tempName;
   }
@@ -174,7 +174,7 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
     return ListView.builder(
       // Subtract 3 from length because id and dispayName should not be edited
       // and thus don't need a textfield and facedata is edited via the edit button
-      itemCount: data.length-3,
+      itemCount: data.length-2,
       itemBuilder: (BuildContext context, int index){
         return Padding(
           padding: const EdgeInsets.all(3),

@@ -165,29 +165,11 @@ class PersonCard extends StatelessWidget {
   // Method for passing user info to PersonCard
   void changeRoute(BuildContext context){
     
-    // Create Map with String and dynamic type and fill
-    // it with user info for passing to EditInfo
-    Map<String, dynamic> content = {
-      "name": tempName,
-      "birth": tempBirth,
-      "iq": tempIQ,
-      "height": tempHeight,
-      "weight": tempWeight,
-      "number": tempNumber,
-      "address": tempAddress,
-      "displayName": tempName,
-      "id": tempId,
-      "facedata": tempFacedata,
-      "osint": tempOSINT,
-    };
-    // Add the Map to a Lst because it is necessary for passing
-    List<Map<String, dynamic>> dataList = List();
-    dataList.add(content);
     // Push to Personcard and pass user data
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditPersonInfo(entries: dataList,),
+        builder: (context) => EditPersonInfo(entries: entries,),
     )).then((value){
     });
   }
