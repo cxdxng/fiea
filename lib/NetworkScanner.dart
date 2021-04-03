@@ -42,68 +42,83 @@ class _NetworkScannerState extends State<NetworkScanner> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: darkBackground,
-        body: Column(
-          children: [
-            isDataReady?
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "IP Adressen",
-                    style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900
-                    ),
-                  ),
-                ),
-                SingleChildScrollView(
-                  child: ListView.builder(
-                    itemCount: listOfIp.length,
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index){
-                      return Card(
-                        color: Colors.blueAccent,
-                        elevation: 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            listOfIp[index],
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white
-                            ),
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              makeTop(),
+              SizedBox(height: 10,),
+              isDataReady?
+              SingleChildScrollView(
+                child: ListView.builder(
+                  itemCount: listOfIp.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index){
+                    return Card(
+                      color: Colors.blueAccent,
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          listOfIp[index],
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.white
                           ),
                         ),
-                      );
-                    },
-                  ),
-                )
-              ],
-            ):
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  SizedBox(height: 20,),
-                  Text("Scanne Netzwerk...", 
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900
+                      ),
+                    );
+                  },
+                ),
+              ):
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    SizedBox(height: 20,),
+                    Text("Scanne Netzwerk...", 
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20,),
-                  CircularProgressIndicator(),
-                ],
+                    SizedBox(height: 20,),
+                    CircularProgressIndicator(),
+                  ],
+                )
               )
-            )
-            
-          ],
+              
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget makeTop() {
+    return Stack(
+      children: [
+        InkWell(
+          child: Icon(
+            Icons.close,
+            color: Colors.white,
+            size: 30,
+          ),
+          onTap: (){Navigator.pop(context);}
+        ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: Text(
+            "IP Adressen",
+            style: TextStyle(
+              fontSize: 40,
+              color: Colors.white,
+              fontWeight: FontWeight.w900
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -383,7 +383,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
       // If STT got initialzed successfully
       // then listen to the user
-      if (available) {
+      if (available && isFinished) {
         setState(() => _isListening = true);
         _speech.listen(
           // Set a result Listener

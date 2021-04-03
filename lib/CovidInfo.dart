@@ -10,98 +10,106 @@ class CovidInfo extends StatefulWidget {
 }
 
 class _CovidInfoState extends State<CovidInfo> {
+  
+  // Bool to change UI if data is ready
   bool isDataReady = false;
 
-  List<String> cityList = ["05315", "05382"];
+  // Create List for ags   Köln     Lohmar    Bonn    FFM      Hannover Freiburg München
+  List<String> cityList = ["05315", "05382", "05314", "06412", "03241", "08311", "09162"];
 
-  List<dynamic> cityMap;
-
-  Map extractedData;
+  // Create List of maps to store individual city data
+  List<Map<dynamic, dynamic>> extractedData = [];
   Map timeData;
 
   @override
   void initState() {
     super.initState();
+    // Fetch the data from api
     fetchData();
   }
-
 
   @override
   Widget build(BuildContext context) {
     // Create the UI
     
-    
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Column(
           children: [
             makeTop(),
-            
-            isDataReady ?
+            SizedBox(height: 10),
 
+            isDataReady ?
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.all(20),
-                itemCount: 1,
+                itemCount: cityList.length,
                 itemBuilder: (BuildContext context, int index){
                   return Center(
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      margin: EdgeInsets.zero,
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      children: [
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          margin: EdgeInsets.zero,
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    "Übersicht (${extractedData["name"]})",
-                                    style: TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "Übersicht (${extractedData[index]["name"]})",
+                                        style: TextStyle(
+                                            fontSize: 40,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
+                                SizedBox(height: 20),
+                                createTextWithIcon(Icons.trending_up_sharp,
+                                    "7-tage Inzidenz: ${double.parse(extractedData[index]["weekIncidence"].toString()).toStringAsFixed(2)}"),
+                                Divider(
+                                  height: 40,
+                                  color: Colors.black,
+                                  thickness: 1,
+                                ),
+
+                                createTextWithIcon(Icons.masks_outlined,
+                                    "Infektionen: ${extractedData[index]["cases"]}"),
+
+                                Divider(
+                                  height: 40,
+                                  color: Colors.black,
+                                  thickness: 1,
+                                ),
+                                createTextWithImageIcon("assets/death.png",
+                                    "Todesfälle: ${extractedData[index]["deaths"]}"),
+
+                                // Other Widgets here
                               ],
                             ),
-                            SizedBox(height: 20),
-                            createTextWithIcon(Icons.trending_up_sharp,
-                                "7-tage Inzidenz: ${double.parse(extractedData["weekIncidence"].toString()).toStringAsFixed(2)}"),
-                            Divider(
-                              height: 40,
-                              color: Colors.black,
-                              thickness: 1,
-                            ),
-
-                            createTextWithIcon(Icons.masks_outlined,
-                                "Infektionen: ${extractedData["cases"]}"),
-
-                            Divider(
-                              height: 40,
-                              color: Colors.black,
-                              thickness: 1,
-                            ),
-                            createTextWithImageIcon("assets/death.png",
-                                "Todesfälle: ${extractedData["deaths"]}"),
-
-                            // Other Widgets here
-                          ],
+                          ),
                         ),
-                      ),
+                        SizedBox(height: 20)
+                      ],
                     ),
                   );
                 },
               ),
             )
 
+            // If data is not ready yet
+            // the CircularProgressIndicator will
+            // show as long as data is beeing fetched
             :CircularProgressIndicator()
 
           ],
@@ -111,21 +119,25 @@ class _CovidInfoState extends State<CovidInfo> {
   }
 
   void fetchData() async {
+    // Fetch the data one by one and store data in extractedData Map
+    for (var i = 0; i < cityList.length; i++) {
+      // Get data for each city from api and
+      // store them in extractedData Map
+      Response response = await http.get(Uri.https("api.corona-zahlen.org", "/districts/${cityList[i]}"));
+      Map<String, dynamic> jsonResponse = await jsonDecode(response.body);
+      Map mainData = jsonResponse["data"];
+      extractedData.add(mainData[cityList[i]]);
 
+    }
     
-      
-    Response response = await http.get(Uri.https("api.corona-zahlen.org", "/districts/${cityList[0]}"));
-    Map<String, dynamic> jsonResponse = await jsonDecode(response.body);
-
-    Map mainData = jsonResponse["data"];
-    extractedData = mainData[cityList[0]];
-
+    // State that data is ready for display
     setState(() {
       isDataReady = true;
     });
     
   }
 
+  // Returns the Title and exit button
   Widget makeTop(){
     return Padding(
       padding: const EdgeInsets.fromLTRB(5,5,0,0),
@@ -153,10 +165,6 @@ class _CovidInfoState extends State<CovidInfo> {
         ],
       ),
     );
-  }
-
-  Widget makeCard(){
-    
   }
 
   Widget createTextWithIcon(IconData icon, String text) {
