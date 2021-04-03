@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:eventify/eventify.dart';
 import 'package:fiea/Chatbot.dart';
+import 'package:fiea/CovidInfo.dart';
 import 'package:fiea/DatabaseHelper.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
@@ -30,6 +31,7 @@ void main() => runApp(MaterialApp(
         '/editInfo': (context) => EditPersonInfo(),
         '/overview': (context) => FunctionOverview(),
         '/networkScanner': (context) => NetworkScanner(),
+        '/covidInfo': (context) => CovidInfo(),
       },
     ));
 
@@ -98,7 +100,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // little introduction and gets prompted to make a new entry
     // with his data
     else {
-      DatabaseHelper.instance.deleteTable();
+      //DatabaseHelper.instance.deleteTable();
       // Change the bool to true so at next launch this
       // will not get executed anymore
       prefs.setBool('seen', true);

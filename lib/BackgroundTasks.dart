@@ -38,6 +38,7 @@ class Background {
   // database so that the database is up to date and available at all times
 
   void getDataFromMySQL()async{
+    setupTTS();
     // Get data from MySQL
     Response response = await http.get(Uri.https(httpAuthory, "/getAllData.php"));
     mysqlData = await jsonDecode(response.body)as List<dynamic>;
@@ -90,6 +91,8 @@ class Background {
       } catch (e) {
         speakOut(errorText);
       }
+
+    // Add face
     }else if (msg.contains("Gesicht hinzufügen")) {
       // Get Facedata from Imagepicker
       String result = await generateFaceData();
@@ -103,6 +106,8 @@ class Background {
         speakOut(errorText);
       }
       return true;
+
+    // Show database
     }else if (msg == "Datenbank anzeigen") {
       // Get data from Database
       List<Map<String, dynamic>> cardInfo = await queryAllData();
@@ -118,11 +123,14 @@ class Background {
         speakOut("Keine Daten vorhanden");
       }
       return true;
+
+    // Delete database
     }else if (msg == "Datenbank löschen") {
       // Delete the current table from Database
-      dbHelper.deleteTable();
-      
+      dbHelper.deleteTable();      
       return true;
+
+    // Filter database
     }else if (msg.contains(" suchen")) {
       try {
         List<Map<String, dynamic>> cardInfo = await queryByName(split[0]);
@@ -138,18 +146,27 @@ class Background {
       } catch (e) {
         speakOut(errorText);
       }
+    // Open Apps
     }else if(msg.contains("öffne")){
       openApp(split[1]);
       speakOut("Wird geöffnet");
       return true;
+    // Calls
     }else if(msg.contains("rufe")&& msg.contains("an")){
       callID(split[2]);
       speakOut("Bitteschön");
       return true;
+    // Scan network
     }else if (msg == "Netzwerk scannen") {
       Navigator.pushNamed(context, "/networkScanner");
       return true;
+
+    // Get daily covid information
+    }else if (msg == "covid Info") {
+      Navigator.pushNamed(context, "/covidInfo");
+      return true;
     }
+
     // If non of the methods above fired, return false to go on with
     // passing the msg to the Chatbot
     return false;
@@ -257,17 +274,21 @@ class Background {
       DatabaseHelper.columnWeight: data[4],
       DatabaseHelper.columnPhonenumber: data[5],
       DatabaseHelper.columnAddress: data[6],
-      DatabaseHelper.columnId: data[7],
-      DatabaseHelper.columnFacedata: data[8],
-      DatabaseHelper.columnOSINT: data[9],
+      DatabaseHelper.columnOSINT: data[7],
+      DatabaseHelper.columnId: data[8],
+      DatabaseHelper.columnFacedata: data[9],
     };
+
+    print(row);
     
     // Update MySQL data
     await http.post(Uri.https(httpAuthory, "/update.php"), body: row);
     // Pass data to method
     int success = await dbHelper.update(row);
     // Check for success
-    if (success != 1) {
+    if (success == 1) {
+      speakOut("Daten erfolgreich geupdated");
+    }else{
       speakOut(errorText);
     }
   }
@@ -349,13 +370,17 @@ class Background {
     }
   }
 
+  void setupTTS()async{
+    // Set language, await speech completion, speech rate and Voice
+    await tts.setLanguage("de-DE");
+    await tts.setVoice({"name":"de-de-x-deb-network", "locale":"de-DE"});
+    await tts.awaitSpeakCompletion(true);
+    await tts.setSpeechRate(1);
+  }
   // Speak out the msg using TTS
   void speakOut(String msg) async {
     // Set language, await speech completion and finally
     // speak the msg
-    await tts.setLanguage("de-DE");
-    await tts.setVoice({"name":"de-de-x-deb-network", "locale":"de-DE"});
-    await tts.awaitSpeakCompletion(true);
     SpeechScreen.ttsEmitter.emit("SPEAKING", null, "");
     await tts.speak(msg);
     // Set isFinished to true when tts has finished speaking
