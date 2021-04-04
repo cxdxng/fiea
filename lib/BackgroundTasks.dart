@@ -11,6 +11,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
+import 'NotifManager.dart';
 
 import 'package:http/http.dart'as http;
 import 'package:http/http.dart';
@@ -43,6 +44,7 @@ class Background {
     Response response = await http.get(Uri.https(httpAuthory, "/getAllData.php"));
     mysqlData = await jsonDecode(response.body)as List<dynamic>;
     // Insert the result into the local database
+    
     insertInLocalDatabase();
   }
 
@@ -66,6 +68,13 @@ class Background {
       };
       // Insert every row into sqlite db
       await dbHelper.insert(row);
+
+      // Get data from Database
+      var dataList = await DatabaseHelper.instance.queryName();
+      // Extract username and speak out the greeting
+      String username = dataList[0]["name"];
+      speakOut("Wilkommen $username\nWie kann ich dir helfen");
+      
     }
   }
 
@@ -81,7 +90,7 @@ class Background {
             await querySingleData(int.parse(split[2]));
         // Check for success
         if (singleData != null) {
-          speakOut("Daten von Kennung ${split[2]}\nBitteschön");
+          speakOut("Daten von Kennung ${split[2]}:Bitteschön");
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -164,6 +173,18 @@ class Background {
     // Get daily covid information
     }else if (msg == "covid Info") {
       Navigator.pushNamed(context, "/covidInfo");
+      return true;
+
+    // Start Auto mode
+    }else if(msg == "Fahrmodus starten"){
+      speakOut("Fahrmodus aktiviert");
+      NotifManager().initPlatformState();
+      NotifManager.carEmitter.emit("start", null, "");
+      return true;
+    // Stop Auto mode
+    }else if (msg == "Fahrmodus beenden") {
+      speakOut("Fahrmodus deaktiviert");
+      NotifManager.carEmitter.emit("end", null, "");
       return true;
     }
 

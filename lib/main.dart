@@ -78,52 +78,20 @@ class _SpeechScreenState extends State<SpeechScreen> {
   // Create Color variables for UI theme of the App
   Color fabColor = Color(0xff080e2c);
 
-  // Method to check if it it the first time the app is launched
-  void checkFirstSeen() async {
-    // Look for a bool in the shared prefrences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = await (prefs.getBool('seen') ?? false);
-    // If it is true it means the app has already been launched once so
-    // the tts greets the user with his/her name
-    if (_seen) {
-      // Fetch data from MySQL
-
-      await Background().getDataFromMySQL();
-
-      // Get data from Database
-      var dataList = await DatabaseHelper.instance.queryName();
-      // Extract username and speak out the greeting
-      String username = dataList[0]["name"];
-      bg.speakOut("Wilkommen $username\nWie kann ich dir helfen");
-    }
-    // However if it is the first launch, the user will get a
-    // little introduction and gets prompted to make a new entry
-    // with his data
-    else {
-      //DatabaseHelper.instance.deleteTable();
-      // Change the bool to true so at next launch this
-      // will not get executed anymore
-      prefs.setBool('seen', true);
-      // Set currentRequestCode to 101 so that the user does not
-      // need to tell the assistant an action first
-      currentRequestCode = 101;
-      // Speakout the introducion
-      Background().speakOut(
-          "Hallo\n und Wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nDrücke dazu einfach den Mikrofon button und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
-    }
-  }
+  
 
   // Create initState to define STT Object
   @override
-  void initState() {
+  void initState(){
     super.initState();
     // Init stt
     _speech = stt.SpeechToText();
     _sttState = _stateReady;
-    // Check for first launch
-    checkFirstSeen();
+
+    Background().getDataFromMySQL();
     // Load the keyword for hotword detection
     loadNewKeyword(keyword);
+
   }
 
   @override
