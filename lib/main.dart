@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:porcupine/porcupine_error.dart';
 import 'package:porcupine/porcupine_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
