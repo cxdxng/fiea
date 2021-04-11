@@ -3,7 +3,6 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:eventify/eventify.dart';
 import 'package:fiea/Chatbot.dart';
 import 'package:fiea/CovidInfo.dart';
-import 'package:fiea/DatabaseHelper.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
 import 'package:fiea/NetworkScanner.dart';
@@ -91,10 +90,15 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // Load the keyword for hotword detection
     loadNewKeyword(keyword);
 
+    
+
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
+    
     // Create listener to check if tts is speaking or not
     // and change isFinished accordingly
     SpeechScreen.ttsEmitter.on("Finished", null, (ev, context) {
@@ -137,7 +141,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         body: Container(
           decoration: BoxDecoration(
               image: DecorationImage(
-            // Set animation depending on isFinished value
+            // Set animation depending on isFinished
             image: isFinished
                 ? AssetImage("assets/aiIdle.gif")
                 : AssetImage("assets/aiTalking.gif"),
@@ -198,6 +202,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void resultListener(SpeechRecognitionResult result) async {
     // Get msg from resultListener
     String msg = result.recognizedWords;
+    print("Recognized message is: $msg");
     // Set the msg to _text to display it to the user
     setState(() {
       _text = msg;
@@ -392,6 +397,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       // Stop processing to avoid collision
       // with stt
       _stopProcessing();
+      print("START LISTENING");
       // Start stt
       listen();
     }

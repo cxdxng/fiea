@@ -7,12 +7,12 @@ import 'package:fiea/main.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'DatabaseHelper.dart';
 import 'NotifManager.dart';
-
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:http/http.dart'as http;
 import 'package:http/http.dart';
 
@@ -68,12 +68,8 @@ class Background {
       };
       // Insert every row into sqlite db
       await dbHelper.insert(row);
-
-      // Get data from Database
-      var dataList = await DatabaseHelper.instance.queryName();
-      // Extract username and speak out the greeting
-      String username = dataList[0]["name"];
-      speakOut("Wilkommen $username\nWie kann ich dir helfen");
+      
+      speakOut("Bereit");
       
     }
   }
@@ -185,6 +181,12 @@ class Background {
     }else if (msg == "Fahrmodus beenden") {
       speakOut("Fahrmodus deaktiviert");
       NotifManager.carEmitter.emit("end", null, "");
+      return true;
+    // Send Message via Whatsapp
+    }else if(msg.contains("Nachricht an Kennung")){
+      List<Map<String, dynamic>> data = await querySingleData(int.parse(split[3][0]));
+      String message = msg.split(": ")[1];
+      sendMessage(data, message);
       return true;
     }
 
@@ -385,10 +387,15 @@ class Background {
       // it will automaticly go to catch block and throw an error
       int.parse(data["number"]);
       speakOut("Okay");
-      launch("tel://${data["number"]}");
+      await FlutterPhoneDirectCaller.callNumber(data["number"]);
     } catch (e) {
       speakOut("Keine Nummer gefunden oder falsches format vorhanden");
     }
+  }
+
+  void sendMessage(List<Map<String, dynamic>> data, String message){
+    speakOut("Bitteschön");
+    FlutterOpenWhatsapp.sendSingleMessage(data[0]["number"], message);
   }
 
   void setupTTS()async{
