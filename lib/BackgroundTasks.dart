@@ -33,7 +33,7 @@ class Background {
   List<dynamic> mysqlData;
   
 
-  String httpAuthory = "close-transfer.000webhostapp.com";
+  String httpAuthory;
 
   // Get all data from MySQL database and save them in a local sqlite
   // database so that the database is up to date and available at all times
