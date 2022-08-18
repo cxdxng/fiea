@@ -7,12 +7,10 @@ import 'package:fiea/main.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
 import 'NotifManager.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -154,12 +152,7 @@ class Background {
       openApp(split[1]);
       speakOut("Wird geöffnet");
       return true;
-      // Calls
-    } else if (msg.contains("rufe") && msg.contains("an")) {
-      callID(split[2]);
-      speakOut("Bitteschön");
-      return true;
-      // Scan network
+      // Scan Networks
     } else if (msg == "Netzwerk scannen") {
       Navigator.pushNamed(context, "/networkScanner");
       return true;
@@ -179,13 +172,6 @@ class Background {
     } else if (msg == "Fahrmodus beenden") {
       speakOut("Fahrmodus deaktiviert");
       NotifManager.carEmitter.emit("end", null, "");
-      return true;
-      // Send Message via Whatsapp
-    } else if (msg.contains("Nachricht an Kennung")) {
-      List<Map<String, dynamic>> data =
-          await querySingleData(int.parse(split[3][0]));
-      String message = msg.split(": ")[1];
-      sendMessage(data, message);
       return true;
     }
 
@@ -371,36 +357,16 @@ class Background {
   // Add facedata to entry in Database
   Future<String> generateFaceData() async {
     // Get image from Gallery using ImagePicker
-    File imageFile = await ImagePicker.pickImage(
-        source: ImageSource.gallery, imageQuality: 25);
-    if (imageFile != null) {
-      // Convert image into base64 encoded String and returning it
-      base64string = await encodeBase64(imageFile);
-      return base64string;
-    }
+    //final ImagePicker _picker = ImagePicker();
+
+    //final XFile imageFile =
+    //    await _picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
+    //if (imageFile != null) {
+    // Convert image into base64 encoded String and returning it
+    //  base64string = await encodeBase64(File(imageFile.path));
+    //  return base64string;
+    //}
     return "";
-  }
-
-  // Call an ID
-  void callID(String msg) async {
-    try {
-      // Get single data from table
-      List<Map<String, dynamic>> result = await querySingleData(int.parse(msg));
-      // Create Map to make access of data easier
-      Map<String, dynamic> data = result[0];
-      // Converting number to int because if no number is set
-      // it will automaticly go to catch block and throw an error
-      int.parse(data["number"]);
-      speakOut("Okay");
-      await FlutterPhoneDirectCaller.callNumber(data["number"]);
-    } catch (e) {
-      speakOut("Keine Nummer gefunden oder falsches format vorhanden");
-    }
-  }
-
-  void sendMessage(List<Map<String, dynamic>> data, String message) {
-    speakOut("Bitteschön");
-    FlutterOpenWhatsapp.sendSingleMessage(data[0]["number"], message);
   }
 
   void setupTTS() async {

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
-
 
 class TTS extends StatefulWidget {
   @override
@@ -8,19 +6,12 @@ class TTS extends StatefulWidget {
 }
 
 class _TTSSTate extends State<TTS> {
-
-  
-
   @override
   void initState() {
     super.initState();
   }
 
-  void sendMessage(){
-    FlutterOpenWhatsapp.sendSingleMessage("1713006650", "Test");
-  }
-
-  
+  void sendMessage() {}
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +22,10 @@ class _TTSSTate extends State<TTS> {
         ),
         body: Column(
           children: [
-            RaisedButton(onPressed: () => sendMessage(), child: Text("data"),)
+            RaisedButton(
+              onPressed: () => sendMessage(),
+              child: Text("data"),
+            )
           ],
         ),
       ),

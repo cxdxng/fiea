@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:eventify/eventify.dart';
 import 'package:fiea/Chatbot.dart';
@@ -76,11 +75,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
   // Create Color variables for UI theme of the App
   Color fabColor = Color(0xff080e2c);
 
-  
-
   // Create initState to define STT Object
   @override
-  void initState(){
+  void initState() {
     super.initState();
     // Init stt
     _speech = stt.SpeechToText();
@@ -89,16 +86,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
     Background().getDataFromMySQL();
     // Load the keyword for hotword detection
     loadNewKeyword(keyword);
-
-    
-
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
-    
     // Create listener to check if tts is speaking or not
     // and change isFinished accordingly
     SpeechScreen.ttsEmitter.on("Finished", null, (ev, context) {
@@ -211,9 +202,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
     // Check if msg is empty and if STT is ready again
     if (msg != "" && _sttState == _stateReady) {
-
-     // Start hotword detection again
-      if(isFinished){
+      // Start hotword detection again
+      if (isFinished) {
         _startProcessing();
       }
 
@@ -312,7 +302,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               // Let the user know whether action was successful or not
               if (success == 1) {
                 bg.speakOut("Eintrag erfolgreich geupdated");
-              }else{
+              } else {
                 bg.speakOut(errorText);
               }
             } catch (FormatException) {
@@ -334,7 +324,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               bg.speakOut(errorText);
             }
           }
-          
+
           break;
       }
       // Now at recall of resultListener, the requestcode check at the beginning
@@ -344,7 +334,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   // Listen to the user
   void listen() async {
-
     if (!_isListening) {
       // Initialize STT
       bool available = await _speech.initialize(
@@ -374,7 +363,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   // Load the hotword and create manager
   Future<void> loadNewKeyword(String keyword) async {
-
     // If manager is already definded, it will be deleted
     if (_porcupineManager != null) {
       _porcupineManager.delete();
@@ -391,7 +379,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     _startProcessing();
   }
 
-  // 
+  //
   void wakeWordResultListener(int keywordIndex) {
     if (keywordIndex >= 0) {
       // Stop processing to avoid collision
@@ -414,7 +402,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       await _porcupineManager.start();
     } on PvAudioException catch (ex) {
       print("Failed to start audio capture: ${ex.message}");
-    } 
+    }
   }
 
   // Stop listening for hotword
