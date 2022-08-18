@@ -7,10 +7,24 @@
          FlutterApplication and put your custom class here. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    
     <application
+    
         android:name="io.flutter.app.FlutterApplication"
         android:label="fiea"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Declare Notification listener service-->
+
+        <service android:name="com.emilecode.android_notification_listener2.NotificationListener"
+            android:label="notifications"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

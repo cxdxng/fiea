@@ -9,6 +9,8 @@
 .history
 .svn/
 
+
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -30,6 +32,7 @@
 .pub-cache/
 .pub/
 /build/
+/Passwords/pass.txt
 
 # Web related
 lib/generated_plugin_registrant.dart

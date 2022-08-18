@@ -6,7 +6,8 @@ class Chatbot {
     "wie geht es dir",
     "danke",
     "was kannst du",
-    "wie viel Uhr ist es"
+    "wie viel Uhr ist es",
+    "wie macht ein Affe"
   ];
 
   List howAreU = [
@@ -34,35 +35,35 @@ class Chatbot {
     for (int i = 0; i < possibleRequests.length; i++) {
       if (msg == possibleRequests[i]) {
         switch (i) {
-          case 0:
-            {
-              bg.speakOut(getRandomAnswer(howAreU));
-              return true;
-            }
-            break;
-          case 1:
-            {
-              bg.speakOut(getRandomAnswer(thanks));
-              return true;
-            }
-            break;
-          case 2:
-            {
-              bg.speakOut(getRandomAnswer(whatCanYouDo));
-              return true;
-            }
-            break;
-          case 3:
-            {
-              DateTime now = new DateTime.now();
-              bg.speakOut("Es ist ${now.hour}:${now.minute}");
-              return true;
-            }
-            break;
-          default:
-            {
-              return false;
-            }
+          case 0:{
+            bg.speakOut(getRandomAnswer(howAreU));
+            return true;
+          }
+          break;
+          case 1:{
+            bg.speakOut(getRandomAnswer(thanks));
+            return true;
+          }
+          break;
+          case 2:{
+            bg.speakOut(getRandomAnswer(whatCanYouDo));
+            return true;
+          }
+          break;
+          case 3:{
+            DateTime now = new DateTime.now();
+            bg.speakOut("Es ist ${now.hour}:${now.minute}");
+            return true;
+          }
+          break;
+          case 4:{
+            bg.speakOut("Schiiiiiiiiiiisch");
+            return true;
+          }
+          break;
+          default:{
+            return false;
+          }
         }
       }
     }

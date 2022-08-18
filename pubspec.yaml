@@ -23,16 +23,28 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  speech_to_text: ^3.1.0
-  avatar_glow: ^1.2.0
-  flutter_tts: ^2.1.0
-  sqflite: ^1.3.2+1
+  speech_to_text: ^3.2.0 # Does what it says
+  avatar_glow: ^1.2.0 # Glow around Floating action button
+  flutter_tts: ^2.1.0 # Text to speech
   path_provider: ^1.5.1
-  image_picker: ^0.6.6+5
-  url_launcher: ^5.7.10
-  eventify: ^0.1.4
-  shared_preferences: ^0.5.12+4
-  flutter_launcher_icons: ^0.8.1
+  image_picker: ^0.6.6+5 # Pick images from Gallery
+  android_notification_listener2: ^2.0.1 # Listen to notifications
+  eventify: ^0.1.4 # Triggers when event happens
+  shared_preferences: ^0.5.12+4 # Checking first seen
+  flutter_launcher_icons: ^0.8.1 # Setting the Launcher icon
+  external_app_launcher: ^0.0.1 # Launch external apps
+  porcupine: ^1.9.6 # Hotwort recognition
+  ping_discover_network: ^0.2.0+1 # Scan network
+  wifi: ^0.1.5 # Scan network
+
+  #SQL shit
+  http: ^0.13.0 # Make HTTP requests
+  sqflite: ^1.3.2+1 # Use offline sql database
+
+  #Testing
+  flutter_open_whatsapp: ^0.1.2
+
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0

@@ -6,13 +6,12 @@ import 'package:flutter/material.dart';
 class DbViewer extends StatelessWidget {
 
   // Create color variables for UI
-  Color blueAccent = Color(0xff33e1ed);
   Color darkBackground = Color(0xff1e1e2c);
 
   // Create necessary variables
   final List<Map<String, dynamic>> entries;
   Map data;
-  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
+  String tempId, tempName, tempBirth, tempFacedata;
   String nA = "Nicht vorhanden";
 
   DbViewer({Key key, this.entries}) : super(key: key);
@@ -108,7 +107,7 @@ class DbViewer extends StatelessWidget {
     // Store information in Map for later use
     data = entries[index];
     // Get necessary data from Map
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempName = data["name"];
     // Return the title as a String
     return "#$tempId: $tempName";
@@ -170,25 +169,22 @@ class DbViewer extends StatelessWidget {
     // Get necessary data from Map
     tempFacedata = data["facedata"];
     tempName = data["name"].toString();
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempBirth = data["birth"].toString();
-    tempHeight = data["height"].toString();
-    tempIQ = data["iq"].toString();
-    tempWeight = data["weight"].toString();
-    tempNumber = data["number"].toString();
-    tempAddress = data["address"].toString();
+    
     // Create Map with String and dynamic type and fill
     // it with user info for passing to PersonCard
     Map<String, dynamic> content = {
-      "_id": tempId,
+      "id": tempId,
       "name": tempName,
       "birth": tempBirth,
       "facedata": tempFacedata,
-      "iq": tempIQ,
-      "height": tempHeight,
-      "weight": tempWeight,
-      "number": tempNumber,
-      "address": tempAddress,
+      "iq": data["iq"].toString(),
+      "height": data["height"].toString(),
+      "weight": data["weight"].toString(),
+      "number": data["number"].toString(),
+      "address": data["address"].toString(),
+      "osint": data["osint"].toString()
     };
     // Add the Map to a Lst because it is necessary for passing
     List<Map<String, dynamic>> dataList = List();
@@ -200,5 +196,4 @@ class DbViewer extends StatelessWidget {
         builder: (context) => PersonCard(entries: dataList,),
     ));
   }
-
 }

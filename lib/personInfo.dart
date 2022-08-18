@@ -11,7 +11,7 @@ class PersonCard extends StatelessWidget {
   // Create necessary variables
   final List<Map<String, dynamic>> entries;
   Map data;
-  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress;
+  String tempId, tempName, tempBirth, tempFacedata, tempHeight, tempIQ, tempWeight, tempNumber, tempAddress, tempOSINT;
   String nA = "Nicht vorhanden";
 
   PersonCard({Key key, this.entries}) : super(key: key);
@@ -40,6 +40,7 @@ class PersonCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
                     child: Column(
+                      //crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         checkForFaceData(),
                         Padding(
@@ -59,15 +60,18 @@ class PersonCard extends StatelessWidget {
                           color: darkBackground,
                         ),
                         Expanded(
-                          child: SingleChildScrollView(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 20),
-                              child: Text(
-                                makeSubTitle(),
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  height: 2,
-                                  color: Colors.white,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                                child: Text(
+                                  makeSubTitle(),
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    height: 2,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -112,15 +116,19 @@ class PersonCard extends StatelessWidget {
     // Store information in Map for later use
     data = entries[0];
     // Get necessary data from Map
-    tempId = data["_id"].toString();
+    tempId = data["id"].toString();
     tempBirth = data["birth"].toString();
     tempHeight = data["height"].toString();
     tempIQ = data["iq"].toString();
     tempWeight = data["weight"].toString();
     tempNumber = data["number"].toString();
     tempAddress = data["address"].toString();
+    tempAddress = data["address"].toString();
+    tempOSINT = data["osint"].toString();
+
+
     // Return user info as correctly formatted String
-    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress"; 
+    return "Kennung: $tempId\nGeboren: $tempBirth\nIQ: $tempIQ\nGröße (cm): $tempHeight\nGewicht (kg): $tempWeight\nNummer: $tempNumber\nAddresse: $tempAddress\nOSINT: $tempOSINT"; 
   }
 
   Widget checkForFaceData() {
@@ -157,28 +165,11 @@ class PersonCard extends StatelessWidget {
   // Method for passing user info to PersonCard
   void changeRoute(BuildContext context){
     
-    // Create Map with String and dynamic type and fill
-    // it with user info for passing to EditInfo
-    Map<String, dynamic> content = {
-      "name": tempName,
-      "birth": tempBirth,
-      "iq": tempIQ,
-      "height": tempHeight,
-      "weight": tempWeight,
-      "number": tempNumber,
-      "address": tempAddress,
-      "displayName": tempName,
-      "_id": tempId,
-      "facedata": tempFacedata,
-    };
-    // Add the Map to a Lst because it is necessary for passing
-    List<Map<String, dynamic>> dataList = List();
-    dataList.add(content);
     // Push to Personcard and pass user data
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditPersonInfo(entries: dataList,),
+        builder: (context) => EditPersonInfo(entries: entries,),
     )).then((value){
     });
   }

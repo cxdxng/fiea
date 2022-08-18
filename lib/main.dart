@@ -2,15 +2,17 @@ import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:eventify/eventify.dart';
 import 'package:fiea/Chatbot.dart';
-import 'package:fiea/DatabaseHelper.dart';
+import 'package:fiea/CovidInfo.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
+import 'package:fiea/NetworkScanner.dart';
 import 'package:fiea/Overview.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:porcupine/porcupine_error.dart';
+import 'package:porcupine/porcupine_manager.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
@@ -26,6 +28,8 @@ void main() => runApp(MaterialApp(
         '/personCard': (context) => PersonCard(),
         '/editInfo': (context) => EditPersonInfo(),
         '/overview': (context) => FunctionOverview(),
+        '/networkScanner': (context) => NetworkScanner(),
+        '/covidInfo': (context) => CovidInfo(),
       },
     ));
 
@@ -42,11 +46,15 @@ class _SpeechScreenState extends State<SpeechScreen> {
   stt.SpeechToText _speech;
   Background bg = Background();
 
-  // Create necessary Variables for STT
+  // Create necessary variables for STT
   bool _isListening = false;
   String _stateBusy = "F.I.E.A hört zu";
   String _stateReady = "F.I.E.A Bereit";
-  String _sttState = "F.I.E.A Bereit";
+  String _sttState;
+
+  // Create variables for hotword detection
+  PorcupineManager _porcupineManager;
+  String keyword = "computer";
 
   // UI prediciton text
   String _text = "Sag etwas...";
@@ -62,55 +70,35 @@ class _SpeechScreenState extends State<SpeechScreen> {
   static const int newEntry = 101;
   static const int updateEntry = 102;
   static const int deleteEntry = 103;
-  static const int makeCall = 104;
 
   bool isFinished = true;
 
   // Create Color variables for UI theme of the App
   Color fabColor = Color(0xff080e2c);
 
-  // Method to check if it it the first time the app is launched
-  void checkFirstSeen() async {
-    // Look for a bool in the shared prefrences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = await (prefs.getBool('seen') ?? false);
-    // If it is true it means the app has already been launched once so
-    // the tts greets the user with his/her name
-    if (_seen) {
-      // Get data from Database
-      var dataList = await DatabaseHelper.instance.queryName();
-      // Extract username and speak out the greeting
-      String username = dataList[0]["name"];
-      bg.speakOut("Wilkommen $username\nWie kann ich dir helfen");
-    }
-    // However if it is the first launch, the user will get a
-    // little introduction and gets prompted to make a new entry
-    // with his data
-    else {
-      DatabaseHelper.instance.deleteTable();
-      // Change the bool to true so at next launch this
-      // will not get executed anymore
-      prefs.setBool('seen', true);
-      // Set currentRequestCode to 101 so that the user does not
-      // need to tell the assistant an action first
-      currentRequestCode = 101;
-      // Speakout the introducion
-      Background().speakOut(
-          "Hallo\n und Wilkommen zu deinem persönlichen Assistenten\nIch wurde dafür ausgelegt, bei der verwaltung von Menschlichen Daten zu helfen\nZu aller erst solltest du dich selbst in die Datenbank eintragen\nDrücke dazu einfach den Mikrofon button und nenne mir danach deinen Vornamen und dein Geburtsjahr!");
-    }
-  }
+  
 
   // Create initState to define STT Object
   @override
-  void initState() {
+  void initState(){
     super.initState();
+    // Init stt
     _speech = stt.SpeechToText();
-    // Check for first launch
-    checkFirstSeen();
+    _sttState = _stateReady;
+
+    Background().getDataFromMySQL();
+    // Load the keyword for hotword detection
+    loadNewKeyword(keyword);
+
+    
+
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
+    
     // Create listener to check if tts is speaking or not
     // and change isFinished accordingly
     SpeechScreen.ttsEmitter.on("Finished", null, (ev, context) {
@@ -127,7 +115,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+
+        // Not needed for now because of hotword detection
+
+        /* floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: AvatarGlow(
           animate: _isListening,
           glowColor: Color(0xff44D6E9),
@@ -146,11 +137,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
             backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
-        ),
+        ), */
         body: Container(
           decoration: BoxDecoration(
               image: DecorationImage(
-            // Set animation depending on isFinished value
+            // Set animation depending on isFinished
             image: isFinished
                 ? AssetImage("assets/aiIdle.gif")
                 : AssetImage("assets/aiTalking.gif"),
@@ -211,26 +202,32 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void resultListener(SpeechRecognitionResult result) async {
     // Get msg from resultListener
     String msg = result.recognizedWords;
+    print("Recognized message is: $msg");
     // Set the msg to _text to display it to the user
     setState(() {
       _text = msg;
     });
-    // Handle results
+    // ***Handle results***
 
     // Check if msg is empty and if STT is ready again
     if (msg != "" && _sttState == _stateReady) {
-      // Check the requestCode first so that a specific one can be detectet soon
+
+     // Start hotword detection again
+      if(isFinished){
+        _startProcessing();
+      }
+
+      // Check the requestCode first so that a specific one can be detectet early
       switch (currentRequestCode) {
         case normalRequest:
           {
-            // 100
             // Check the msg for spectific actions
             switch (msg) {
               case "neuer Eintrag":
                 {
                   // Let the user know what he needs to say
                   bg.speakOut("Name und Jahr bitte");
-                  //change the current request code to the necessary one
+                  // Change the current request code to the necessary one
                   currentRequestCode = newEntry;
                 }
                 break;
@@ -238,7 +235,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 {
                   // Let the user know what he needs to say
                   bg.speakOut("Kennung, Attribut und Wert bitte");
-                  //change the current request code to the necessary one
+                  // Change the current request code to the necessary one
                   currentRequestCode = updateEntry;
                 }
                 break;
@@ -246,22 +243,15 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 {
                   // Let the user know what he needs to say
                   bg.speakOut("Kennung bitte");
-                  //change the current request code to the necessary one
-                  currentRequestCode = deleteEntry;
-                }
-                break;
-              case "Anruf tätigen":
-                {
-                  // Let the user know what he needs to say
-                  bg.speakOut("Welche Kennung möchtest du anrufen?");
                   // Change the current request code to the necessary one
-                  currentRequestCode = makeCall;
+                  currentRequestCode = deleteEntry;
                 }
                 break;
               case "zeig mir was du kannst":
                 {
                   // Give the user feedback
                   bg.speakOut("Das hier sind meine Funktionen");
+                  // Open overview
                   Navigator.pushNamed(context, "/overview");
                 }
                 break;
@@ -284,11 +274,13 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   } // if (!performedAction)
                 } // default
             } // switch(msg)
+            break;
           } // case nomalRequest
           break;
+
+        // What to do in case of special action
         case newEntry:
           {
-            // 101
             // Change the current request code to normal request
             // since information has already been collected
             currentRequestCode = normalRequest;
@@ -318,7 +310,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
               int success =
                   await bg.update(int.parse(split[1]), split[2], split[3]);
               // Let the user know whether action was successful or not
-              if (success != 1) {
+              if (success == 1) {
+                bg.speakOut("Eintrag erfolgreich geupdated");
+              }else{
                 bg.speakOut(errorText);
               }
             } catch (FormatException) {
@@ -340,22 +334,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               bg.speakOut(errorText);
             }
           }
-          break;
-        case makeCall:
-          {
-            // Change the current request code to normal request
-            // since information has already been collected
-            currentRequestCode = normalRequest;
-            // Split the result at spaces
-            split = bg.splitResult(msg);
-            // Try executing the method in BackgroundTask and catching error if one occurs
-            try {
-              //bg.speakOut("Okay");
-              bg.callID(split[1]);
-            } catch (Exeption) {
-              bg.speakOut(errorText);
-            }
-          }
+          
           break;
       }
       // Now at recall of resultListener, the requestcode check at the beginning
@@ -365,6 +344,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
   // Listen to the user
   void listen() async {
+
     if (!_isListening) {
       // Initialize STT
       bool available = await _speech.initialize(
@@ -375,7 +355,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
       // If STT got initialzed successfully
       // then listen to the user
-      if (available) {
+      if (available && isFinished) {
         setState(() => _isListening = true);
         _speech.listen(
           // Set a result Listener
@@ -388,5 +368,57 @@ class _SpeechScreenState extends State<SpeechScreen> {
       });
       _speech.stop();
     }
+  }
+
+  // ***Hotword detection functions***
+
+  // Load the hotword and create manager
+  Future<void> loadNewKeyword(String keyword) async {
+
+    // If manager is already definded, it will be deleted
+    if (_porcupineManager != null) {
+      _porcupineManager.delete();
+    }
+    // Create new manager
+    try {
+      _porcupineManager = await PorcupineManager.fromKeywords(
+          [keyword], wakeWordResultListener,
+          errorCallback: errorCallback);
+    } on PvError catch (ex) {
+      print("Failed to initialize Porcupine: ${ex.message}");
+    }
+    // Start detection
+    _startProcessing();
+  }
+
+  // 
+  void wakeWordResultListener(int keywordIndex) {
+    if (keywordIndex >= 0) {
+      // Stop processing to avoid collision
+      // with stt
+      _stopProcessing();
+      print("START LISTENING");
+      // Start stt
+      listen();
+    }
+  }
+
+  // Error callback
+  void errorCallback(PvError error) {
+    print(error.message);
+  }
+
+  // Start listening for hotword
+  Future<void> _startProcessing() async {
+    try {
+      await _porcupineManager.start();
+    } on PvAudioException catch (ex) {
+      print("Failed to start audio capture: ${ex.message}");
+    } 
+  }
+
+  // Stop listening for hotword
+  Future<void> _stopProcessing() async {
+    await _porcupineManager.stop();
   }
 }

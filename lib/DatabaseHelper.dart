@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,11 +10,9 @@ class DatabaseHelper {
   static final _databaseVersion = 1;
   static final table = 'humanData';
 
-  // Create Database object
-  Database db;
 
   // Create column variables
-  static final columnId = '_id';
+  static final columnId = 'id';
   static final columnName = 'name';
   static final columnBirth = 'birth';
   static final columnFacedata = "facedata";
@@ -22,6 +21,7 @@ class DatabaseHelper {
   static final columnHeight = "height";
   static final columnPhonenumber = "number";
   static final columnAddress = "address";
+  static final columnOSINT = "osint";
   // make this a singleton class
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -38,7 +38,6 @@ class DatabaseHelper {
 
   // this opens the database (and creates it if it doesn't exist)
   _initDatabase() async {
-    db = await instance.database;
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
     return await openDatabase(path,
@@ -50,14 +49,15 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
-            $columnName TEXT NOT NULL,
-            $columnBirth TEXT NOT NULL,
+            $columnName TEXT,
+            $columnBirth TEXT,
             $columnFacedata TEXT,
-            $columnIQ TEXT NOT NULL,
-            $columnWeight TEXT NOT NULL,
-            $columnHeight TEXT NOT NULL,
-            $columnPhonenumber TEXT NOT NULL,
-            $columnAddress TEXT
+            $columnIQ TEXT,
+            $columnWeight TEXT,
+            $columnHeight TEXT,
+            $columnPhonenumber TEXT,
+            $columnAddress TEXT,
+            $columnOSINT TEXT
           )
           ''');
   }
@@ -69,8 +69,22 @@ class DatabaseHelper {
 
   // Inserts a row in the database
   Future<int> insert(Map<String, dynamic> row) async {
+    Database db = await instance.database;
     return await db.insert(table, row);
   }
+  
+  // Inserts a row in the database
+  Future<int> insertMySQLData(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    return await db.insert(table, row);
+  }
+
+  void emptyTable()async{
+    Database db = await instance.database;
+    await db.execute("DELETE FROM $table");
+  }
+
+
 
   // All of the rows are returned as a list of maps, where each map is
   // a key-value list of columns.
@@ -104,11 +118,12 @@ class DatabaseHelper {
   // column values will be used to update the row.
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
+    
     try {
       int id = int.parse(row[columnId]);
+      
+      return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
 
-      return await db
-          .update(table, row, where: '$columnId = ?', whereArgs: [id]);
     } catch (FormatException) {}
     return null;
   }
@@ -129,16 +144,18 @@ class DatabaseHelper {
   }
 
   // Delete the table if it exists and immediately create a fresh one
-  Future<bool> deleteTable() async {
+  void deleteTable() async {
     try {
       Database db = await instance.database;
       await db.execute("DROP TABLE IF EXISTS $table");
       print("Dropped table successfully");
       await _onCreate(db, _databaseVersion);
       print("Created new Table: $table");
-      return true;
+      
     } catch (e) {
-      return false;
+      
     }
+    
   }
+  
 }
