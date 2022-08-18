@@ -36,12 +36,8 @@ class Background {
   void getDataFromMySQL() async {
     setupTTS();
     // Get data from MySQL
-    Response response =
-        await http.get(Uri.https(httpAuthory, "/getAllData.php"));
-    mysqlData = await jsonDecode(response.body) as List<dynamic>;
-    // Insert the result into the local database
 
-    insertInLocalDatabase();
+    dbHelper.emptyTable();
   }
 
   void insertInLocalDatabase() async {
