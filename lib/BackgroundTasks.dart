@@ -67,8 +67,9 @@ class Background {
   Future<bool> handleNormalResult(String msg, BuildContext context) async {
     // Split the msg at spaces
     List<String> split = splitResult(msg);
+    msg = msg.toLowerCase();
     // Check msg and run corresponding method
-    if (msg.contains("info Kennung")) {
+    if (msg.contains("info kennung")) {
       try {
         // Pass msg to method
         List<Map<String, dynamic>> singleData =
@@ -87,7 +88,7 @@ class Background {
       }
 
       // Add face
-    } else if (msg.contains("Gesicht hinzufügen")) {
+    } else if (msg.contains("gesicht hinzufügen")) {
       // Get Facedata from Imagepicker
       String result = await generateFaceData();
 
@@ -102,7 +103,7 @@ class Background {
       return true;
 
       // Show database
-    } else if (msg == "Datenbank anzeigen") {
+    } else if (msg == "datenbank anzeigen") {
       // Get data from Database
       List<Map<String, dynamic>> cardInfo = await queryAllData();
 
@@ -119,7 +120,7 @@ class Background {
       return true;
 
       // Delete database
-    } else if (msg == "Datenbank löschen") {
+    } else if (msg == "datenbank löschen") {
       // Delete the current table from Database
       dbHelper.deleteTable();
       return true;
@@ -146,7 +147,7 @@ class Background {
       speakOut("Wird geöffnet");
       return true;
       // Scan Networks
-    } else if (msg == "Netzwerk scannen") {
+    } else if (msg == "netzwerk scannen") {
       Navigator.pushNamed(context, "/networkScanner");
       return true;
 
@@ -156,13 +157,13 @@ class Background {
       return true;
 
       // Start Auto mode
-    } else if (msg == "Fahrmodus starten") {
+    } else if (msg == "fahrmodus starten") {
       speakOut("Fahrmodus aktiviert");
       NotifManager().initPlatformState();
       NotifManager.carEmitter.emit("start", null, "");
       return true;
       // Stop Auto mode
-    } else if (msg == "Fahrmodus beenden") {
+    } else if (msg == "fahrmodus beenden") {
       speakOut("Fahrmodus deaktiviert");
       NotifManager.carEmitter.emit("end", null, "");
       return true;
@@ -341,15 +342,15 @@ class Background {
   // Add facedata to entry in Database
   Future<String> generateFaceData() async {
     // Get image from Gallery using ImagePicker
-    //final ImagePicker _picker = ImagePicker();
+    final ImagePicker _picker = ImagePicker();
 
-    //final XFile imageFile =
-    //    await _picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
-    //if (imageFile != null) {
-    // Convert image into base64 encoded String and returning it
-    //  base64string = await encodeBase64(File(imageFile.path));
-    //  return base64string;
-    //}
+    final XFile imageFile =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
+    if (imageFile != null) {
+      //Convert image into base64 encoded String and returning it
+      base64string = await encodeBase64(File(imageFile.path));
+      return base64string;
+    }
     return "";
   }
 

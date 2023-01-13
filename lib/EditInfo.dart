@@ -107,9 +107,13 @@ class _EditPersonInfoState extends State<EditPersonInfo> {
                                   tempFacedata = result;
                                 });
                               },
-                              icon: Icon(Icons.edit),
-                              label:
-                                  Text("Edit", style: TextStyle(fontSize: 25)),
+                              icon: Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                              label: Text("Edit",
+                                  style: TextStyle(
+                                      fontSize: 25, color: Colors.white)),
                             )),
                         Padding(
                           padding: const EdgeInsets.only(top: 10),

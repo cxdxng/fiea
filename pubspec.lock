@@ -158,13 +158,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.5.0"
-  flutter_voice_processor:
-    dependency: transitive
-    description:
-      name: flutter_voice_processor
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.8"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -352,13 +345,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
-  porcupine:
-    dependency: "direct main"
-    description:
-      name: porcupine
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.9.14"
   process:
     dependency: transitive
     description:
@@ -525,13 +511,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
-  wifi:
-    dependency: "direct main"
-    description:
-      name: wifi
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.5"
   win32:
     dependency: transitive
     description:

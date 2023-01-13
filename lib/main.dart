@@ -4,17 +4,13 @@ import 'package:fiea/Chatbot.dart';
 import 'package:fiea/CovidInfo.dart';
 import 'package:fiea/DatabaseViewer.dart';
 import 'package:fiea/EditInfo.dart';
-import 'package:fiea/NetworkScanner.dart';
 import 'package:fiea/Overview.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
-import 'package:porcupine/porcupine_error.dart';
-import 'package:porcupine/porcupine_manager.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'BackgroundTasks.dart';
-import 'DatabaseViewer.dart';
 
 void main() => runApp(MaterialApp(
       // Declare routes for changing screens
@@ -26,7 +22,6 @@ void main() => runApp(MaterialApp(
         '/personCard': (context) => PersonCard(),
         '/editInfo': (context) => EditPersonInfo(),
         '/overview': (context) => FunctionOverview(),
-        '/networkScanner': (context) => NetworkScanner(),
         '/covidInfo': (context) => CovidInfo(),
       },
     ));
@@ -51,7 +46,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   String _sttState;
 
   // Create variables for hotword detection
-  PorcupineManager _porcupineManager;
   String keyword = "computer";
 
   // UI prediciton text
@@ -84,7 +78,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
     Background().getDataFromMySQL();
     // Load the keyword for hotword detection
-    loadNewKeyword(keyword);
+    //loadNewKeyword(keyword);
   }
 
   @override
@@ -108,7 +102,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
         // Not needed for now because of hotword detection
 
-        /* floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: AvatarGlow(
           animate: _isListening,
           glowColor: Color(0xff44D6E9),
@@ -118,6 +112,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           repeat: true,
           child: FloatingActionButton(
             onPressed: () {
+              print("Button Pressed");
               // Check if TTS has finished speaking
               if (isFinished) {
                 // If so then listen to the user
@@ -127,7 +122,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
             backgroundColor: fabColor,
             child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           ),
-        ), */
+        ),
         body: Container(
           decoration: BoxDecoration(
               image: DecorationImage(
@@ -180,8 +175,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
     if (status == "notListening" || status == "done") {
       setState(() {
         _sttState = _stateReady;
+        _isListening = false;
       });
-      listen();
+      //listen();
     } else {
       setState(() {
         _sttState = _stateBusy;
@@ -201,11 +197,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
     // Check if msg is empty and if STT is ready again
     if (msg != "" && _sttState == _stateReady) {
-      // Start hotword detection again
-      if (isFinished) {
-        _startProcessing();
-      }
-
       // Check the requestCode first so that a specific one can be detectet early
       switch (currentRequestCode) {
         case normalRequest:
@@ -344,6 +335,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       // If STT got initialzed successfully
       // then listen to the user
       if (available && isFinished) {
+        print("INITIALIZING SUCCESS");
         setState(() => _isListening = true);
         _speech.listen(
           // Set a result Listener
@@ -356,56 +348,5 @@ class _SpeechScreenState extends State<SpeechScreen> {
       });
       _speech.stop();
     }
-  }
-
-  // ***Hotword detection functions***
-
-  // Load the hotword and create manager
-  Future<void> loadNewKeyword(String keyword) async {
-    // If manager is already definded, it will be deleted
-    if (_porcupineManager != null) {
-      _porcupineManager.delete();
-    }
-    // Create new manager
-    try {
-      _porcupineManager = await PorcupineManager.fromKeywords(
-          [keyword], wakeWordResultListener,
-          errorCallback: errorCallback);
-    } on PvError catch (ex) {
-      print("Failed to initialize Porcupine: ${ex.message}");
-    }
-    // Start detection
-    _startProcessing();
-  }
-
-  //
-  void wakeWordResultListener(int keywordIndex) {
-    if (keywordIndex >= 0) {
-      // Stop processing to avoid collision
-      // with stt
-      _stopProcessing();
-      print("START LISTENING");
-      // Start stt
-      listen();
-    }
-  }
-
-  // Error callback
-  void errorCallback(PvError error) {
-    print(error.message);
-  }
-
-  // Start listening for hotword
-  Future<void> _startProcessing() async {
-    try {
-      await _porcupineManager.start();
-    } on PvAudioException catch (ex) {
-      print("Failed to start audio capture: ${ex.message}");
-    }
-  }
-
-  // Stop listening for hotword
-  Future<void> _stopProcessing() async {
-    await _porcupineManager.stop();
   }
 }

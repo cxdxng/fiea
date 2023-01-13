@@ -33,9 +33,7 @@ dependencies:
   shared_preferences: ^2.0.15 # Checking first seen
   flutter_launcher_icons: ^0.10.0 # Setting the Launcher icon
   external_app_launcher: ^3.1.0 # Launch external apps
-  porcupine: ^1.9.6 # Hotwort recognition
   ping_discover_network: ^0.2.0+1 # Scan network
-  wifi: ^0.1.5 # Scan network
   path_provider_windows: any 
 
   #SQL shit
