@@ -28,8 +28,6 @@ class Background {
 
   List<dynamic> mysqlData;
 
-  String httpAuthory;
-
   // Get all data from MySQL database and save them in a local sqlite
   // database so that the database is up to date and available at all times
 
@@ -92,8 +90,7 @@ class Background {
     } else if (msg.contains("Gesicht hinzufügen")) {
       // Get Facedata from Imagepicker
       String result = await generateFaceData();
-      await http.post(Uri.https(httpAuthory, "/updateOne.php"),
-          body: {"id": split[3], "column": "facedata", "value": result});
+
       // Check for success
       if (result != "") {
         // Pass msg to method
@@ -194,9 +191,8 @@ class Background {
     final id = await dbHelper.insert(row);
     // Add the id to the row
     row["id"] = id.toString();
-    await http.post(Uri.https(httpAuthory, "/insert.php"), body: row);
     // Let user know which id the new entry has
-    speakOut('Erfolgreich eingetragen\n Neue Kennung: $id');
+    speakOut('Erfolgreich eingetragen...Neue Kennung: $id');
   }
 
   // Update one parameter of an ID with Speech input
@@ -208,7 +204,6 @@ class Background {
     switch (toUpdate) {
       case "Name":
         {
-          updateMySQL(id, "name", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnName: value,
@@ -218,7 +213,6 @@ class Background {
         break;
       case "IQ":
         {
-          updateMySQL(id, "iq", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnIQ: int.parse(value),
@@ -228,7 +222,6 @@ class Background {
         break;
       case "Gewicht":
         {
-          updateMySQL(id, "weight", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnWeight: "$value kg",
@@ -238,7 +231,6 @@ class Background {
         break;
       case "Größe":
         {
-          updateMySQL(id, "height", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnHeight: "$value cm"
@@ -248,7 +240,6 @@ class Background {
         break;
       case "Nummer":
         {
-          updateMySQL(id, "number", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnPhonenumber: value
@@ -258,7 +249,6 @@ class Background {
         break;
       case "Adresse":
         {
-          updateMySQL(id, "address", value);
           row = {
             DatabaseHelper.columnId: id,
             DatabaseHelper.columnAddress: value
@@ -291,7 +281,6 @@ class Background {
     print(row);
 
     // Update MySQL data
-    await http.post(Uri.https(httpAuthory, "/update.php"), body: row);
     // Pass data to method
     int success = await dbHelper.update(row);
     // Check for success
@@ -339,8 +328,7 @@ class Background {
   // Delete an entry from the Database
   void delete(int id) async {
     // Delete MySQL entry
-    await http.post(Uri.https(httpAuthory, "/delete.php"),
-        body: {"id": id.toString()});
+
     // Pass data to method
     final rowsDeleted = await dbHelper.delete(id);
     if (rowsDeleted == 1) {
@@ -370,7 +358,7 @@ class Background {
     await tts.setLanguage("de-DE");
     await tts.setVoice({"name": "de-de-x-deb-network", "locale": "de-DE"});
     await tts.awaitSpeakCompletion(true);
-    await tts.setSpeechRate(1);
+    await tts.setSpeechRate(0.6);
   }
 
   // Speak out the msg using TTS
@@ -406,28 +394,23 @@ class Background {
   }
 
   // Update one column in MySQL database
-  void updateMySQL(int id, String column, String value) async {
-    var response = await http.post(Uri.https(httpAuthory, "/updateOne.php"),
-        body: {"id": id.toString(), "column": column, "value": value});
-    print(response.body);
-  }
 
   // Open a certain App
   void openApp(String appName) async {
     // Check for app name and open app according to its package name
-    switch (appName) {
-      case "whatsapp":
-        {
-          await LaunchApp.openApp(
-              androidPackageName: "com.whatsapp", openStore: false);
-        }
-        break;
-      case "youtube":
-        {
-          await LaunchApp.openApp(
-              androidPackageName: "com.google.android.youtube",
-              openStore: false);
-        }
-    }
+    // switch (appName) {
+    //   case "whatsapp":
+    //     {
+    //       await LaunchApp.openApp(
+    //           androidPackageName: "com.whatsapp", openStore: false);
+    //     }
+    //     break;
+    //   case "youtube":
+    //     {
+    //       await LaunchApp.openApp(
+    //           androidPackageName: "com.google.android.youtube",
+    //           openStore: false);
+    //     }
+    // }
   }
 }

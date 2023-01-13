@@ -9,7 +9,6 @@ import 'package:fiea/Overview.dart';
 import 'package:fiea/TestUI.dart';
 import 'package:fiea/personInfo.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:porcupine/porcupine_error.dart';
 import 'package:porcupine/porcupine_manager.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -178,7 +177,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     // Set lastStatus to current Status so resultListener
     // knows when STT is not listening anymore
 
-    if (status == "notListening") {
+    if (status == "notListening" || status == "done") {
       setState(() {
         _sttState = _stateReady;
       });

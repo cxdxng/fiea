@@ -22,7 +22,7 @@ class _TTSSTate extends State<TTS> {
         ),
         body: Column(
           children: [
-            RaisedButton(
+            ElevatedButton(
               onPressed: () => sendMessage(),
               child: Text("data"),
             )
